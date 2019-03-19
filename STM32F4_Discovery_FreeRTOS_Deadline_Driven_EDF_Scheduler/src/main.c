@@ -83,6 +83,8 @@ int main(void)
 	HardwareInit(); // Initialize the GPIO and ADC
 
 
+	xTaskCreate( MonitorTask , "Monitoring Task",configMINIMAL_STACK_SIZE ,NULL ,DD_TASK_PRIORITY_MONITOR,   NULL);
+
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
 
