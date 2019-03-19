@@ -69,15 +69,12 @@
 */
 
 
-#include <STM32F4_FreeRTOS_DD_config.h>
+#include <dd_scheduler.h>
 
 
 // Initialization declaration
 void HardwareInit(void);
 
-// Test task declaration
-void ADCTestTask( void *pvParameters );
-void ShiftTestTask( void *pvParameters );
 
 /*-----------------------------------------------------------*/
 
