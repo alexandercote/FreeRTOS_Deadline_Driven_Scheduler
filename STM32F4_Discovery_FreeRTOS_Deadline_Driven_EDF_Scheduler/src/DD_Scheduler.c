@@ -5,6 +5,7 @@
  *      Author: amcote
  */
 
+#include "DD_Scheduler.h"
 
 TaskHandle_t DD_Task_Create(DD_Task create_task)
 {

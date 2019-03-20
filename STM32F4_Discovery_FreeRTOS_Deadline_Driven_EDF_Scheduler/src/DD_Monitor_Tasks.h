@@ -5,8 +5,8 @@
  *      Author: amcote
  */
 
-#ifndef MONITOR_TASKS_H_
-#define MONITOR_TASKS_H_
+#ifndef DD_MONITOR_TASKS_H_
+#define DD_MONITOR_TASKS_H_
 
 volatile unsigned long ulHighFrequencyTimerTicks = 0;
 
@@ -16,4 +16,4 @@ void MonitorTask ( void *pvParameters );
 void SetupRunTimeStatsTimer(void);
 void TIM7_IRQHandler(void);
 
-#endif /* MONITOR_TASKS_H_ */
+#endif /* DD_MONITOR_TASKS_H_ */

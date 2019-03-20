@@ -69,7 +69,7 @@
 */
 
 
-#include <dd_scheduler.h>
+#include <DD_Scheduler.h>
 
 
 // Initialization declaration
