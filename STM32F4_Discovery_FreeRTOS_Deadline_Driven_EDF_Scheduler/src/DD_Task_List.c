@@ -29,6 +29,9 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 	if(task_to_remove->task_handle != NULL || task_to_remove->next_cell != NULL || task_to_remove->previous_cell != NULL)
 		return false;
 
+	// remove the task from RTOS kernel management
+	vTaskDelete(task_to_remove->task_handle);
+	// free the memory used by the task
 	vPortFree((void*)task_to_remove);
 
 	return true;
