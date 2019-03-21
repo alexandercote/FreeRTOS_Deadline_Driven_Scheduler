@@ -34,7 +34,7 @@ typedef struct DD_TaskList_t{
 	uint32_t        list_length;
 	DD_TaskHandle_t list_head;
 	DD_TaskHandle_t list_tail;
-} DD_TaskList_t ;
+} DD_TaskList_t;
 
 typedef DD_TaskList_t* DD_TaskListHandle_t;
 

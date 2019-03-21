@@ -65,11 +65,11 @@ uint32_t DD_Task_Delete(DD_TaskHandle_t delete_task)
 
 uint32_t DD_Return_Active_List(DD_TaskListHandle_t list)
 {
-	return 0;
+	return active_list;
 }
 
 
 uint32_t DD_Return_Overdue_List(DD_TaskListHandle_t list)
 {
-	return 0;
+	return overdue_list;
 }
