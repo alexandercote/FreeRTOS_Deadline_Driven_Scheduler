@@ -89,7 +89,7 @@ void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHand
 				task_to_insert->next_cell     = NULL;
 				task_to_insert->previous_cell = iterator;
 				iterator->next_cell           = task_to_insert;
-				insert_list->list_tail = task_to_insert;
+				insert_list->list_tail        = task_to_insert;
 
 				(insert_list->list_length)++; // increment the list size
 				vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_MINIMUM );
