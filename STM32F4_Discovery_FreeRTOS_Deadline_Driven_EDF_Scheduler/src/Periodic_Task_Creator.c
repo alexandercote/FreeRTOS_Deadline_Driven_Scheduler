@@ -19,7 +19,7 @@ void PeriodicTask (void *pvParameters)
 
 }
 
-void PeriodicTaskGenerator(DD_TaskHandle_t periodic_task, TickType_t  )
+void PeriodicTaskGenerator(DD_TaskHandle_t periodic_task, TickType_t deadline )
 {
 
 }
