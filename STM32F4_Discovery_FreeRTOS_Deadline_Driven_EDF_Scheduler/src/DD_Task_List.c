@@ -48,7 +48,9 @@ void DD_TaskList_Init(DD_TaskListHandle_t init_list)
 
 // Task List Access Functions
 
-// need to do some sort of priority management here
+// Priority Management:
+// From head of the list, increment priority until the insertion location is reached.
+
 void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHandle_t insert_list)
 {
 	// check if list is empty, else place element according to its deadline
@@ -57,19 +59,28 @@ void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHand
 		insert_list->list_length = 1;
 		insert_list->list_head = task_to_insert;
 		insert_list->list_tail = task_to_insert;
-		vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION );
+		vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE );
 		return; // quit early so the next part doesn't run
 	}
 
 	// list isnt empty, need to iterate through list and place according to deadline
+
 	DD_TaskHandle_t iterator = insert_list->list_head; // start from head, closest deadline
+	uint32_t itr_priority = uxTaskPriorityGet(iterator->task_handle); // grab the highest priority value
+
+	if((itr_priority + 1) == DD_TASK_PRIORITY_SCHEDULER) // reached the highest level of priority
+	{
+		printf("ERROR: REACHED LIMIT OF NUMBER OF SCHEDULABLE TASKS!. NOT INSERTING TASK");
+		return;
+	}
+
+	itr_priority++; //increment the priority, set the new priority until the new task is reached.
 
 	while( iterator != NULL )
 	{
-		if( task_to_insert->deadline < iterator->deadline ) //new element has earliest deadline.
+		if( task_to_insert->deadline < iterator->deadline ) //found location in list.
 		{
-
-			if( iterator == insert_list->list_head) // current head is getting replaced
+			if( iterator == insert_list->list_head) // new element has earliest deadline, current head is getting replaced
 				insert_list->list_head = task_to_insert;
 
 			task_to_insert->next_cell     = iterator;                // place new task before iterator
@@ -77,9 +88,8 @@ void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHand
 			iterator->previous_cell       = task_to_insert;          // make the iterator task previous to the newly inserted task
 
 			(insert_list->list_length)++; // increment the list size
-			// current only setting one main priority, rest of tasks wait, going to have to figure out a method here.
-			vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION );
-			vTaskPrioritySet(iterator->task_handle, DD_TASK_PRIORITY_MINIMUM );
+
+			vTaskPrioritySet(task_to_insert->task_handle, itr_priority);
 			return; // no need to continue the loop
 		}
 		else
@@ -92,10 +102,13 @@ void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHand
 				insert_list->list_tail        = task_to_insert;
 
 				(insert_list->list_length)++; // increment the list size
-				vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_MINIMUM );
+				vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE );
 				return; // no need to continue the loop, even though its about to end.
 			}
 
+			//Current task has closer deadline than new task, and isn't the tail. Increment priority.
+			vTaskPrioritySet(iterator->task_handle, itr_priority );
+			itr_priority--;
 			iterator = iterator->next_cell; //keep going through the list
 
 		} // end if/else deadline comparison
@@ -103,7 +116,7 @@ void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHand
 } // end DD_TaskList_Deadline_Insert
 
 
-// going to have to do some funky stuff here too for priority
+
 void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remove_list)
 {
 	if(remove_list->list_length == 0)
@@ -132,7 +145,6 @@ void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remo
 
 			(remove_list->list_length)--; // decrement the list size
 			return; // done with the removal
-
 		}
 	}
 }

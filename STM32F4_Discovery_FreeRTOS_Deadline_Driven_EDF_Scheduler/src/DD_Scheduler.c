@@ -65,6 +65,9 @@ uint32_t DD_Task_Delete(DD_TaskHandle_t delete_task)
 
 DD_TaskListHandle_t DD_Return_Active_List()
 {
+
+
+
 	return &active_list;
 }
 

@@ -92,7 +92,7 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 #define configUSE_TICK_HOOK				     ( 0 )
 #define configCPU_CLOCK_HZ				     ( SystemCoreClock )
 #define configTICK_RATE_HZ				     ( ( TickType_t ) 1000 )
-#define configMAX_PRIORITIES			     ( 32 )
+#define configMAX_PRIORITIES			     ( 255 )
 #define configMINIMAL_STACK_SIZE		     ( ( unsigned short ) 130 )
 #define configTOTAL_HEAP_SIZE			     ( ( size_t ) ( 30 * 1024 ) )
 #define configMAX_TASK_NAME_LEN			     ( 10 )
