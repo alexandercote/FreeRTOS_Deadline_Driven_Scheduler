@@ -22,7 +22,8 @@
 # define DD_TASK_PRIORITY_SCHEDULER (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
 
 
-
+static DD_TaskList_t active_list;
+static DD_TaskList_t overdue_list;
 
 // Queues for Task_Create and Task_Delete
 QueueHandle_t DD_Message = 0;
