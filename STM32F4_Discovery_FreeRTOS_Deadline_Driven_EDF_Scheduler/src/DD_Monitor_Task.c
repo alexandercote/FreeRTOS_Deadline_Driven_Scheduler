@@ -5,6 +5,9 @@
  *      Author: amcote
  */
 
+#include "DD_Monitor_Task.h"
+
+extern volatile unsigned long ulHighFrequencyTimerTicks;
 
 // https://www.freertos.org/rtos-run-time-stats.html
 // http://blog.atollic.com/visualizing-run-time-statistics-using-freertos
@@ -12,7 +15,10 @@
 void MonitorTask ( void *pvParameters )
 {
 	/* Get tasks */
-	char * buffer = (char *)  pcWriteBuffer;
+	uint32_t size = 50*uxTaskGetNumberOfTasks();
+	// if not valid, then just malloc it
+
+	char buffer[size];
 	vTaskGetRunTimeStats(buffer);
 	/* print out tasks */
 	printf("\n%s\n", buffer);

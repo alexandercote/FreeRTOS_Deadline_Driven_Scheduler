@@ -69,9 +69,10 @@
 */
 
 
-#include <DD_Scheduler.h>
+#include "DD_Scheduler.h"
+#include "DD_Monitor_Task.h"
 
-
+volatile unsigned long ulHighFrequencyTimerTicks = 0;
 // Initialization declaration
 void HardwareInit(void);
 

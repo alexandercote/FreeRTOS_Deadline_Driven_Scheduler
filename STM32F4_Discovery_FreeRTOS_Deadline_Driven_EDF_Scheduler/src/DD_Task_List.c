@@ -30,8 +30,6 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 		printf("ERROR(DD_Task_Free): Forgot to remove task from list, not deleting it. Fix the code.\n");
 		return false;
 
-	// remove the task from RTOS kernel management
-	vTaskDelete(task_to_remove->task_handle);
 	// free the memory used by the task
 	vPortFree((void*)task_to_remove);
 

@@ -10,7 +10,16 @@
 
 #include "includes.h"
 
-typedef struct {
+// Priority Definition
+
+# define DD_TASK_PRIORITY_IDLE      (0)
+# define DD_TASK_PRIORITY_MONITOR   (1)
+# define DD_TASK_PRIORITY_MINIMUM   (2)
+# define DD_TASK_PRIORITY_EXECUTION (configMAX_PRIORITIES - 1)
+# define DD_TASK_PRIORITY_SCHEDULER (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
+
+
+typedef struct DD_Task_t{
 	TaskHandle_t      task_handle;
 	TaskFunction_t    task_function;
 	TickType_t        deadline;
@@ -21,8 +30,8 @@ typedef struct {
 
 typedef DD_Task_t* DD_TaskHandle_t;
 
-typedef struct {
-	uint_32         list_length;
+typedef struct DD_TaskList_t{
+	uint32_t        list_length;
 	DD_TaskHandle_t list_head;
 	DD_TaskHandle_t list_tail;
 } DD_TaskList_t ;
@@ -32,7 +41,7 @@ typedef DD_TaskList_t* DD_TaskListHandle_t;
 
 // Task Creation/Deletion (List Elements)
 DD_TaskHandle_t DD_Task_Allocate();
-void DD_Task_Free(DD_TaskHandle_t task_to_remove);
+bool DD_Task_Free(DD_TaskHandle_t task_to_remove);
 
 // Task List Access Functions
 void DD_TaskList_Init(DD_TaskListHandle_t init_list);
