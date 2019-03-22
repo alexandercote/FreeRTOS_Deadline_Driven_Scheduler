@@ -64,7 +64,7 @@ void DD_TaskList_Basic_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHandle_
 	{
 		DD_TaskHandle_t temp_swap = insert_list->list_tail; // get the current list tail
 		insert_list->list_tail        = task_to_insert;
-		temp_swap->next_cell          = insert_list;
+		temp_swap->next_cell          = task_to_insert;
 		task_to_insert->previous_cell = temp_swap;
 	}
 }
@@ -151,7 +151,6 @@ void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remo
 
 	DD_TaskHandle_t iterator = remove_list->list_head; // start from head, closest deadline
 	uint32_t itr_priority = uxTaskPriorityGet(iterator->task_handle); // grab the highest priority value
-	itr_priority--;
 
 	while( iterator != NULL )
 	{
@@ -162,7 +161,6 @@ void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remo
 
 			if(prev_task == NULL) // OR if(task_to_remove == remove_list->list_head)
 				remove_list->list_head = next_task;
-
 			if(next_task == NULL) // OR if(task_to_remove == remove_list->list_tail)
 				remove_list->list_tail = prev_task;
 
@@ -170,11 +168,14 @@ void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remo
 			next_task->previous_cell = prev_task;
 
 			(remove_list->list_length)--; // decrement the list size
+
 			return; // done with the removal
 		}
-		//Current isnt the one to remove. Decrement priority.
-		vTaskPrioritySet(iterator->task_handle, itr_priority );
+		//Current isn't the one to remove. Decrement priority.
 		itr_priority--;
+		vTaskPrioritySet(iterator->task_handle, itr_priority);
+
+		iterator = iterator->next_cell;
 	}
 }
 
@@ -187,7 +188,30 @@ void DD_TaskList_Transfer_Overdue(DD_TaskListHandle_t active_list, DD_TaskListHa
 	{
 		if(iterator->deadline < current_time) // passed the deadline.
 		{
-			DD_TaskList_Remove(iterator, active_list);
+			// ACTIVE LIST MANAGEMENT
+			DD_TaskHandle_t prev_task = iterator->previous_cell;
+			DD_TaskHandle_t next_task = iterator->next_cell;
+
+			if(prev_task == NULL) // OR if(task_to_remove == remove_list->list_head)
+				active_list->list_head = next_task;
+			if(next_task == NULL) // OR if(task_to_remove == remove_list->list_tail)
+				active_list->list_tail = prev_task;
+
+			prev_task->next_cell     = next_task;
+			next_task->previous_cell = prev_task;
+
+			(active_list->list_length)--; // decrement the list size
+
+
+			// OVERDUE LIST MANAGEMENT
+			DD_TaskList_Basic_Insert(iterator, overdue_list);
+
 		}
+		else // EDF active list format - no more deadlines past.
+		{
+			return;
+		}
+
+		iterator = iterator->next_cell;
 	}
 }

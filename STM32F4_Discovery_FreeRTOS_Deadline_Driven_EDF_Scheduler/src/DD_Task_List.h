@@ -48,7 +48,9 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove);
 
 // Task List Access Functions
 void DD_TaskList_Init(DD_TaskListHandle_t init_list);
+void DD_TaskList_Basic_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHandle_t insert_list);
 void DD_TaskList_Deadline_Insert(DD_TaskHandle_t task_to_insert, DD_TaskListHandle_t insert_list);
 void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remove_list);
+void DD_TaskList_Transfer_Overdue(DD_TaskListHandle_t active_list, DD_TaskListHandle_t overdue_list);
 
 #endif /* DD_TASK_LIST_H_ */
