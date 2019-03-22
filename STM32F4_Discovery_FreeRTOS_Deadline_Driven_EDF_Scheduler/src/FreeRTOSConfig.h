@@ -92,7 +92,7 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 #define configUSE_TICK_HOOK				     ( 0 )
 #define configCPU_CLOCK_HZ				     ( SystemCoreClock )
 #define configTICK_RATE_HZ				     ( ( TickType_t ) 1000 )
-#define configMAX_PRIORITIES			     ( 255 )
+#define configMAX_PRIORITIES			     ( 32 )
 #define configMINIMAL_STACK_SIZE		     ( ( unsigned short ) 130 )
 #define configTOTAL_HEAP_SIZE			     ( ( size_t ) ( 30 * 1024 ) )
 #define configMAX_TASK_NAME_LEN			     ( 10 )
@@ -106,11 +106,11 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 #define configUSE_APPLICATION_TASK_TAG	     ( 0 )
 #define configUSE_COUNTING_SEMAPHORES	     ( 1 )
 // REQUIRED FOR MONITOR TASK
-#define configUSE_TRACE_FACILITY             ( 1 )
-#define configGENERATE_RUN_TIME_STATS	     ( 1 )
-#define configUSE_STATS_FORMATTING_FUNCTIONS ( 1 )
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS SetupRunTimeStatsTimer // timer needs to be at least 10 times frequency of tick count
-#define portGET_RUN_TIME_COUNTER_VALUE() ulHighFrequencyTimerTicks         // add value of clock
+#define configUSE_TRACE_FACILITY             ( 0 )
+#define configGENERATE_RUN_TIME_STATS	     ( 0 )
+#define configUSE_STATS_FORMATTING_FUNCTIONS ( 0 )
+//#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS SetupRunTimeStatsTimer // timer needs to be at least 10 times frequency of tick count
+//#define portGET_RUN_TIME_COUNTER_VALUE() ulHighFrequencyTimerTicks         // add value of clock
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		    ( 0 )

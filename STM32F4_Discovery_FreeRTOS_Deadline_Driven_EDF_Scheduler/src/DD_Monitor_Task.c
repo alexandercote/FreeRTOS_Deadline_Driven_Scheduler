@@ -23,10 +23,10 @@ void MonitorTask ( void *pvParameters )
 	//printf("\n%s\n", buffer);
 	//vTaskDelay(3000);
 
-	DD_TaskListHandle_t temp_active =  DD_Return_Active_List();
-	DD_TaskListHandle_t temp_overdue = DD_Return_Overdue_List();
+	//DD_TaskListHandle_t temp_active =  DD_Return_Active_List();
+	//DD_TaskListHandle_t temp_overdue = DD_Return_Overdue_List();
 
-	TickType_t current_time = xTaskGetTickCount();
+	//TickType_t current_time = xTaskGetTickCount();
 
 
 }

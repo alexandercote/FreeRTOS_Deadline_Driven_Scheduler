@@ -19,9 +19,11 @@
 # define DD_TASK_PRIORITY_SCHEDULER      (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
 
 
-typedef struct DD_Task_t{
+typedef struct DD_Task_t
+{
 	TaskHandle_t      task_handle;
 	TaskFunction_t    task_function;
+	const char *      task_name;
 	TickType_t        deadline;
 	TickType_t        creation_time;
 	struct DD_Task_t* next_cell;
@@ -30,7 +32,8 @@ typedef struct DD_Task_t{
 
 typedef DD_Task_t* DD_TaskHandle_t;
 
-typedef struct DD_TaskList_t{
+typedef struct DD_TaskList_t
+{
 	uint32_t        list_length;
 	DD_TaskHandle_t list_head;
 	DD_TaskHandle_t list_tail;
