@@ -138,12 +138,10 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 
 
 // DD_TaskList_Remove -> removes a task given its handle
-// DD_TaskList_Remove_1 -> does it by TaskHandle_t
-// DD_TaskList_Remove_2 -> does it by DD_TaskHandle_t
 
 // Priority Management:
 // From head of the list, decrement priority until the insertion location is reached.
-void DD_TaskList_Remove_1( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
+void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
 {
 	if(remove_list->list_length == 0)
 	{
@@ -192,60 +190,6 @@ void DD_TaskList_Remove_1( TaskHandle_t task_to_remove , DD_TaskListHandle_t rem
 		vTaskPrioritySet(iterator->task_handle, itr_priority);
 	}
 
-}
-
-// TODO: Prob get rid of DD_TaskList_Remove_2 after testing.
-
-// Priority Management:
-// From head of the list, decrement priority until the insertion location is reached.
-void DD_TaskList_Remove_2( DD_TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
-{
-	if(remove_list->list_length == 0)
-	{
-		printf("ERROR(DD_TaskList_Remove): trying to remove a task from an empty list...\n");
-		return;
-	}
-
-	DD_TaskHandle_t iterator = remove_list->list_head; // start from head, closest deadline
-	uint32_t itr_priority = uxTaskPriorityGet(iterator->task_handle); // grab the highest priority value
-
-	while( iterator != NULL )
-	{
-		if( iterator == task_to_remove ) // found the task to remove
-		{
-			DD_TaskHandle_t prev_task = task_to_remove->previous_cell;
-			DD_TaskHandle_t next_task = task_to_remove->next_cell;
-
-			if( prev_task == NULL ) // OR if(task_to_remove == remove_list->list_head)
-				remove_list->list_head = next_task;
-			if( next_task == NULL ) // OR if(task_to_remove == remove_list->list_tail)
-				remove_list->list_tail = prev_task;
-
-			prev_task->next_cell     = next_task;
-			next_task->previous_cell = prev_task;
-
-			(remove_list->list_length)--; // decrement the list size
-
-			return; // done with the removal
-		}
-		//Current isn't the one to remove. Decrement priority.
-		itr_priority--;
-		vTaskPrioritySet(iterator->task_handle, itr_priority);
-
-		iterator = iterator->next_cell;
-	}
-
-	// If we get to this point, that means the item wasn't in the list... Undo all the priority stuff we just did.
-	// Go back through the list, and increment all reset the priorities.
-	iterator = remove_list->list_tail;
-	vTaskPrioritySet(iterator->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
-
-	while( iterator != NULL )
-	{
-		itr_priority++;
-		iterator = iterator->previous_cell;
-		vTaskPrioritySet(iterator->task_handle, itr_priority);
-	}
 }
 
 

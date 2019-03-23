@@ -53,7 +53,7 @@ void DD_Scheduler(  void *pvParameters )
 					//xQueueSend(  )
 					break;
 				case(DD_Message_Delete):
-					DD_TaskList_Remove_1( received_message.message_sender , &active_list )
+					DD_TaskList_Remove( received_message.message_sender , &active_list );
 
 					// Reply to message.
 					//xQueueSend(  )
