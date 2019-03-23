@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "stm32f4_discovery.h"
+#include <string.h>
 
 /* Kernel includes. */
 #include "stm32f4xx.h"
