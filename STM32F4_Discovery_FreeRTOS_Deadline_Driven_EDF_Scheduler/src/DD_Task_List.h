@@ -24,8 +24,8 @@ typedef struct DD_Task_t
 	TaskHandle_t      task_handle;
 	TaskFunction_t    task_function;
 	const char *      task_name;
-	TickType_t        deadline;
 	TickType_t        creation_time;
+	TickType_t        deadline;
 	struct DD_Task_t* next_cell;
 	struct DD_Task_t* previous_cell;
 } DD_Task_t;

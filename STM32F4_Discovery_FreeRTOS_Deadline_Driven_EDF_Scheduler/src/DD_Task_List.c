@@ -15,8 +15,8 @@ DD_TaskHandle_t DD_Task_Allocate()
 	newtask->task_handle   = NULL;
 	newtask->task_function = NULL;
 	newtask->task_name     = "";
-	newtask->deadline      = 0;
 	newtask->creation_time = 0;
+	newtask->deadline      = 0;
 	newtask->next_cell     = NULL;
 	newtask->previous_cell = NULL;
 
