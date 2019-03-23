@@ -44,19 +44,22 @@ void DD_Scheduler(  void *pvParameters )
 		{
 			// Clear overdue tasks
 			// NOTE: Have to somehow ensure that delete taks
-			DD_TaskList_Transfer_Overdue( active_list, overdue_list );
+			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
 
 			// going through DD_Message_Type_t enum
 			switch(received_message.message_type)
 			{
 				case(DD_Message_Create):
 					// Need to pass in the DD_TaskHandle_t and the list to work on.
-				    DD_TaskList_Deadline_Insert( received_message.message_sender , active_list);
+				    DD_TaskList_Deadline_Insert( received_message.message_sender , &active_list );
 					// Reply to message.
 					//xQueueSend(  )
 					break;
 				case(DD_Message_Delete):
-		            DD_TaskList_Remove( received_message.message_sender, active_list);
+					// Check if the element still exists in active list.
+					// Could manage this issue in DD_TaskList_Remove, would be more efficient.
+					if( DD_TaskList_Task_Exists( received_message.message_sender , &active_list ))
+						DD_TaskList_Remove( received_message.message_sender , &active_list );
 					// Reply to message.
 					//xQueueSend(  )
 					break;
@@ -90,15 +93,16 @@ TaskHandle_t DD_Task_Create(DD_TaskHandle_t create_task)
 	// Task create: xTaskCreate( TaskFunction_t Function ,  const char * const pcName, configMINIMAL_STACK_SIZE ,NULL ,UBaseType_t uxPriority , TaskHandle_t *pxCreatedTask);
 	xTaskCreate( create_task->task_function , create_task->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(create_task->task_handle));
 
-	DD_Message_t create_message = { DD_Message_Create , create_task->task_handle ,  };
+	DD_Message_t create_message = { DD_Message_Create , create_task };
 
 	// Send message to DD_Scheduler
-	xQueueSend(DD_Message, &create_task, (TickType_t)10 );
+	xQueueSend(DD_Message_Queue, &create_message, (TickType_t)10 );
 
 	// Wait for read - Queue is empty means data is read.
 	while (uxQueueMessagesWaiting(DD_Message_Queue) == 1);
 
-	// TODO: Verify if DD_scheduler sends a reply, and if it does, change the wait logic.
+
+
 
 	// Delete the message queue
 	vQueueDelete(DD_Message_Queue);
@@ -110,20 +114,24 @@ TaskHandle_t DD_Task_Create(DD_TaskHandle_t create_task)
 uint32_t DD_Task_Delete(DD_TaskHandle_t delete_task)
 {
 	// Create a queue of size with the parameters (could be smaller since includes pointers to next and prev) with size 1.
-	DD_Message = xQueueCreate( 1, sizeof(DD_Task_t));
+	DD_Message_Queue = xQueueCreate( 1, sizeof(DD_Task_t));
+
+	DD_Message_t delete_message = { DD_Message_Delete , delete_task };
+
+	xQueueSend(DD_Message_Queue, &delete_message, (TickType_t)10 );
+
+	// Wait for read - Queue is empty means data is read.
+	while (uxQueueMessagesWaiting(DD_Message_Queue) == 1);
+
+
+
+
+	// Delete the message queue
+	vQueueDelete(DD_Message_Queue);
 
 	// Deletes the task passed into the function
 	vTaskDelete( &(delete_task->task_handle) );
-
-	xQueueSend(DD_Message, &delete_task, (TickType_t)10 );
-
-	// Wait for read - Queue is empty means data is read.
-	while (uxQueueMessagesWaiting(DD_Message) == 1);
-
-	// TODO: Verify if DD_scheduler sends a reply, and if it does, change the wait logic.
-
-	// Delete the message queue
-	vQueueDelete(DD_Message);
+	// OR vTaskDelete( NULL );
 
 	return 0;
 }
