@@ -48,17 +48,26 @@ void DD_Scheduler(  void *pvParameters )
 			{
 				case(DD_Message_Create):
 					// Need to pass in the DD_TaskHandle_t and the list to work on.
-				    DD_TaskList_Deadline_Insert( received_message.message_sender , &active_list );
+				    DD_TaskList_Deadline_Insert( received_message.message_data , &active_list );
 					// Reply to message.
 					//xQueueSend(  )
 					break;
 				case(DD_Message_Delete):
+					DD_TaskList_Remove_1( received_message.message_sender , &active_list )
+
+					// Reply to message.
+					//xQueueSend(  )
+
+					/*
+					// Need to grab the data within the scheduler based off the sender.
+					received_message.message_data = DD_TaskList_Get_DD_TaskHandle_t( received_message.message_sender , &active_list );
+
 					// Check if the element still exists in active list.
 					// Could manage this issue in DD_TaskList_Remove, would be more efficient.
 					if( DD_TaskList_Task_Exists( received_message.message_sender , &active_list ) )
-						DD_TaskList_Remove( received_message.message_sender , &active_list );
-					// Reply to message.
-					//xQueueSend(  )
+						DD_TaskList_Remove_2( received_message.message_sender , &active_list );
+					*/
+
 					break;
 				case(DD_Message_ActiveList):
 					break;
