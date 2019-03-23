@@ -105,7 +105,7 @@ TaskHandle_t DD_Task_Create(DD_TaskHandle_t create_task)
 	// Task create: xTaskCreate( TaskFunction_t Function ,  const char * const pcName, configMINIMAL_STACK_SIZE ,NULL ,UBaseType_t uxPriority , TaskHandle_t *pxCreatedTask);
 	xTaskCreate( create_task->task_function , create_task->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(create_task->task_handle));
 
-	DD_Message_t create_message = { DD_Message_Create , create_task };
+	DD_Message_t create_message = { DD_Message_Create , create_task->task_handle, create_task };
 
 	// Send message to DD_Scheduler
 	xQueueSend(DD_Message_Queue, &create_message, (TickType_t)10 );
@@ -128,10 +128,7 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 	// Create a queue of size with the parameters (could be smaller since includes pointers to next and prev) with size 1.
 	DD_Message_Queue = xQueueCreate( 1, sizeof(DD_Task_t));
 
-	// Maybe need to move this into the scheduler.
-	DD_TaskHandle_t delete_task_struct =  DD_TaskList_Get_DD_TaskHandle_t( delete_task , &active_list );
-
-	DD_Message_t delete_message = { DD_Message_Delete , delete_task_struct };
+	DD_Message_t delete_message = { DD_Message_Delete , delete_task , NULL };
 
 	xQueueSend(DD_Message_Queue, &delete_message, (TickType_t)10 );
 
