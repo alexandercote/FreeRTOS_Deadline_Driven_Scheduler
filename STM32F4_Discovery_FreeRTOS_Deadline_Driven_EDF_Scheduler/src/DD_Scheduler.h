@@ -14,31 +14,23 @@
 
 
 
-static DD_TaskList_t active_list;
-static DD_TaskList_t overdue_list;
-
-// Queues for Task_Create and Task_Delete
-QueueHandle_t DD_Message = 0;
-//QueueHandle_t DD_Create_Message = 0;
-//QueueHandle_t DD_Delete_Message = 0;
 
 
 // Message types
 typedef enum DD_Message_Type_t
 {
-	DD_Mes_Create,
-	DD_Mes_Delete,
-	DD_Mes_ActiveList,
-	DD_Mes_OverdueList,
+	DD_Message_Create,
+	DD_Message_Delete,
+	DD_Message_ActiveList,
+	DD_Message_OverdueList,
 }DD_Message_Type_t;
 
 // Message structure
 typedef struct DD_Message_t
 {
 	DD_Message_Type_t message_type;
-	TaskHandle_t      message_sender_task;
-	void*             message_data;
-};
+	DD_TaskHandle_t   message_sender; // Maybe send it a DD_TaskHandle_t?
+}DD_Message_t;
 
 
 // Scheduler
