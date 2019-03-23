@@ -235,4 +235,9 @@ void DD_TaskList_Transfer_Overdue(DD_TaskListHandle_t active_list, DD_TaskListHa
 char * DD_TaskList_Formatted_Data(DD_TaskListHandle_t list)
 {
 	DD_TaskHandle_t iterator = list->list_head; // start from head
+	char * outputbuffer;
+	while( iterator != NULL )
+	{
+
+	}
 }
