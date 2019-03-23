@@ -179,6 +179,20 @@ void DD_TaskList_Remove(DD_TaskHandle_t task_to_remove, DD_TaskListHandle_t remo
 	}
 }
 
+// Checks if task exists in list.
+bool DD_TaskList_Task_Exists(DD_TaskHandle_t task, DD_TaskListHandle_t list)
+{
+	DD_TaskHandle_t iterator = list->list_head; // start from head
+	while( iterator != NULL )
+	{
+		if(iterator == task) // found the task
+			return True;
+	}
+	return False;
+
+}
+
+
 // goes through active list, removes overdue tasks, adds them to overdue list
 void DD_TaskList_Transfer_Overdue(DD_TaskListHandle_t active_list, DD_TaskListHandle_t overdue_list)
 {
