@@ -114,12 +114,15 @@ TaskHandle_t DD_Task_Create(DD_TaskHandle_t create_task)
 }
 
 
-uint32_t DD_Task_Delete(DD_TaskHandle_t delete_task)
+uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 {
 	// Create a queue of size with the parameters (could be smaller since includes pointers to next and prev) with size 1.
 	DD_Message_Queue = xQueueCreate( 1, sizeof(DD_Task_t));
 
-	DD_Message_t delete_message = { DD_Message_Delete , delete_task };
+	// Maybe need to move this into the scheduler.
+	DD_TaskHandle_t delete_task_struct =  DD_TaskList_Get_DD_TaskHandle_t( delete_task , &active_list );
+
+	DD_Message_t delete_message = { DD_Message_Delete , delete_task_struct };
 
 	xQueueSend(DD_Message_Queue, &delete_message, (TickType_t)10 );
 
@@ -133,7 +136,7 @@ uint32_t DD_Task_Delete(DD_TaskHandle_t delete_task)
 	vQueueDelete(DD_Message_Queue);
 
 	// Deletes the task passed into the function
-	vTaskDelete( &(delete_task->task_handle) );
+	vTaskDelete( delete_task );
 	// OR vTaskDelete( NULL );
 
 	return 0;

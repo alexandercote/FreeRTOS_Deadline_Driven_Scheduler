@@ -29,7 +29,8 @@ typedef enum DD_Message_Type_t
 typedef struct DD_Message_t
 {
 	DD_Message_Type_t message_type;
-	DD_TaskHandle_t   message_sender; // Maybe send it a DD_TaskHandle_t?
+	TaskHandle_t      message_sender; // Maybe send it a DD_TaskHandle_t? -> cant since wont have it for delete.
+	void*             message_data;
 }DD_Message_t;
 
 
@@ -40,7 +41,7 @@ void DD_Scheduler();
 // Public Helper Functions
 
 TaskHandle_t        DD_Task_Create(DD_TaskHandle_t create_task);
-uint32_t            DD_Task_Delete(DD_TaskHandle_t delete_task);
+uint32_t            DD_Task_Delete(TaskHandle_t delete_task);
 DD_TaskListHandle_t DD_Return_Active_List();
 DD_TaskListHandle_t DD_Return_Overdue_List();
 

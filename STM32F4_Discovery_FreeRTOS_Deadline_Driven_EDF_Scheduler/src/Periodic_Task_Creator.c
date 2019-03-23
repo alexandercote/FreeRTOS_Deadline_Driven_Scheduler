@@ -14,7 +14,8 @@ void PeriodicTask (void *pvParameters)
 	vTaskDelay(200);
 	while(1)
 	{
-		DD_Task_Delete(  );
+		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
+		DD_Task_Delete( my_task );
 	}
 
 }

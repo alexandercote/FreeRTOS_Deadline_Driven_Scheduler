@@ -65,6 +65,8 @@ bool DD_TaskList_Task_Exists(DD_TaskHandle_t task, DD_TaskListHandle_t list);
 
 // Removes overdue tasks from active list, adds them to the overdue list.
 void DD_TaskList_Transfer_Overdue(DD_TaskListHandle_t active_list, DD_TaskListHandle_t overdue_list);
+
+// Return the DD_TaskHandle_t given a TaskHandle_t
 DD_TaskHandle_t DD_TaskList_Get_DD_TaskHandle_t( TaskHandle_t task , DD_TaskListHandle_t list );
 
 #endif /* DD_TASK_LIST_H_ */
