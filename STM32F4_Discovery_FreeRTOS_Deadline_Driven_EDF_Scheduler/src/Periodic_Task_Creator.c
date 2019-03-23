@@ -14,7 +14,7 @@ void PeriodicTask (void *pvParameters)
 	vTaskDelay(200);
 	while(1)
 	{
-		DD_Task_Delete( NULL );
+		DD_Task_Delete(  );
 	}
 
 }

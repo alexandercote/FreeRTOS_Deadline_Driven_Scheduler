@@ -43,10 +43,6 @@ void DD_Scheduler(  void *pvParameters )
 	{
 		if( xQueueReceive( DD_Message_Queue, &received_message, portMAX_DELAY ) ) // wait until an item is present on the queue.
 		{
-			// Clear overdue tasks
-			// NOTE: Have to somehow ensure that delete taks
-			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
-
 			// going through DD_Message_Type_t enum
 			switch(received_message.message_type)
 			{
@@ -59,7 +55,7 @@ void DD_Scheduler(  void *pvParameters )
 				case(DD_Message_Delete):
 					// Check if the element still exists in active list.
 					// Could manage this issue in DD_TaskList_Remove, would be more efficient.
-					if( DD_TaskList_Task_Exists( received_message.message_sender , &active_list ))
+					if( DD_TaskList_Task_Exists( received_message.message_sender , &active_list ) )
 						DD_TaskList_Remove( received_message.message_sender , &active_list );
 					// Reply to message.
 					//xQueueSend(  )
@@ -69,6 +65,12 @@ void DD_Scheduler(  void *pvParameters )
 				case(DD_Message_OverdueList):
 					break;
 			}
+
+			// Clear overdue tasks
+			// NOTE: Have to somehow ensure that delete taks
+			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
+
+
 		}
 
 
