@@ -85,6 +85,7 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 		insert_list->list_head = task_to_insert;
 		insert_list->list_tail = task_to_insert;
 		vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
+		printf("Inserted Head.");
 		return; // quit early so the next part doesn't run
 	}
 

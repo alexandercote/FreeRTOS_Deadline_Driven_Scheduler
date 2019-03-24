@@ -114,22 +114,24 @@ void List_Tests()
 	xTaskCreate( task_1->task_function , task_1->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_1->task_handle));
 	DD_TaskHandle_t task_2 = DD_Task_Allocate();
 	task_2->task_function = PeriodicTask;
-	task_2->task_name     = "task uno";
+	task_2->task_name     = "task dos";
 	task_2->deadline      = (TickType_t) 200;
 	xTaskCreate( task_2->task_function , task_2->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_2->task_handle));
 	DD_TaskHandle_t task_3 = DD_Task_Allocate();
 	task_3->task_function = PeriodicTask;
-	task_3->task_name     = "task uno";
+	task_3->task_name     = "task tres";
 	task_3->deadline      = (TickType_t) 300;
 	xTaskCreate( task_3->task_function , task_3->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_3->task_handle));
 
 	/* Start the tasks and timer running. */
-	vTaskStartScheduler();
+	//vTaskStartScheduler();
 
-	while(1)
-	{
-
-	}
+    DD_TaskList_Deadline_Insert( task_1 , &active_list );
+    DD_TaskList_Deadline_Insert( task_2 , &active_list );
+    DD_TaskList_Deadline_Insert( task_3 , &active_list );
+    DD_TaskList_Remove( task_1->task_handle , &active_list );
+    DD_TaskList_Remove( task_2->task_handle , &active_list );
+    DD_TaskList_Remove( task_3->task_handle , &active_list );
 
 	return;
 }
