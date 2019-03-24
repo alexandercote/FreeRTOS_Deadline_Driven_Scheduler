@@ -68,15 +68,16 @@
     1 tab == 4 spaces!
 */
 
-
+#include "FreeRTOSHooks.h"
 #include "DD_Scheduler.h"
 #include "DD_Monitor_Task.h"
-#include "FreeRTOSHooks.h"
+#include "Periodic_Task_Creator.h"
 
 volatile unsigned long ulHighFrequencyTimerTicks = 0;
 
 // Initialization declaration
 void HardwareInit(void);
+void List_Tests(void);
 
 
 /*-----------------------------------------------------------*/
@@ -84,9 +85,12 @@ void HardwareInit(void);
 int main(void)
 {
 	HardwareInit(); // Initialize the GPIO and ADC
+	List_Tests();
 
-	xTaskCreate( DD_Scheduler , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
-	xTaskCreate( MonitorTask  , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
+
+	//xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+	//xTaskCreate( PeriodicTaskGenerator_1 , "Generator Task"                 , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , NULL);
+	//xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
@@ -94,6 +98,42 @@ int main(void)
 	return 0;
 } // end main
 /*-----------------------------------------------------------*/
+
+
+// Tests the insert and delete functions.
+// Attempts to moc the DD_Scheduler functionality.
+void List_Tests()
+{
+	DD_TaskList_t active_list;
+	DD_TaskList_Init( &active_list );
+
+	DD_TaskHandle_t task_1 = DD_Task_Allocate();
+	task_1->task_function = PeriodicTask;
+	task_1->task_name     = "task uno";
+	task_1->deadline      = (TickType_t) 100;
+	xTaskCreate( task_1->task_function , task_1->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_1->task_handle));
+	DD_TaskHandle_t task_2 = DD_Task_Allocate();
+	task_2->task_function = PeriodicTask;
+	task_2->task_name     = "task uno";
+	task_2->deadline      = (TickType_t) 200;
+	xTaskCreate( task_2->task_function , task_2->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_2->task_handle));
+	DD_TaskHandle_t task_3 = DD_Task_Allocate();
+	task_3->task_function = PeriodicTask;
+	task_3->task_name     = "task uno";
+	task_3->deadline      = (TickType_t) 300;
+	xTaskCreate( task_3->task_function , task_3->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_3->task_handle));
+
+	/* Start the tasks and timer running. */
+	vTaskStartScheduler();
+
+	while(1)
+	{
+
+	}
+
+	return;
+}
+
 
 
 void HardwareInit()

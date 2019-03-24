@@ -11,4 +11,9 @@
 #include "includes.h"
 #include "DD_Scheduler.h"
 
+
+void PeriodicTask ( void *pvParameters );
+void PeriodicTaskGenerator_1( void *pvParameters );
+
+
 #endif /* PERIODIC_TASK_CREATOR_H_ */
