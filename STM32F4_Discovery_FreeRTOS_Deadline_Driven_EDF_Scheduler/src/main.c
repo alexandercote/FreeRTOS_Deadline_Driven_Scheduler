@@ -107,10 +107,13 @@ void List_Tests()
 	DD_TaskList_t active_list;
 	DD_TaskList_Init( &active_list );
 
+	// Seems to hard fault if all tasks are priority of 1, and try to elevate one of them.
+	xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+
 	DD_TaskHandle_t task_1 = DD_Task_Allocate();
 	task_1->task_function = PeriodicTask;
 	task_1->task_name     = "task uno";
-	task_1->deadline      = (TickType_t) 100;
+	task_1->deadline      = (TickType_t) 300;
 	xTaskCreate( task_1->task_function , task_1->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_1->task_handle));
 	DD_TaskHandle_t task_2 = DD_Task_Allocate();
 	task_2->task_function = PeriodicTask;
@@ -120,7 +123,7 @@ void List_Tests()
 	DD_TaskHandle_t task_3 = DD_Task_Allocate();
 	task_3->task_function = PeriodicTask;
 	task_3->task_name     = "task tres";
-	task_3->deadline      = (TickType_t) 300;
+	task_3->deadline      = (TickType_t) 100;
 	xTaskCreate( task_3->task_function , task_3->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_3->task_handle));
 
 	/* Start the tasks and timer running. */
@@ -130,8 +133,18 @@ void List_Tests()
     DD_TaskList_Deadline_Insert( task_2 , &active_list );
     DD_TaskList_Deadline_Insert( task_3 , &active_list );
     DD_TaskList_Remove( task_1->task_handle , &active_list );
+    vTaskDelete( task_1->task_handle );
+    DD_Task_Free(task_1);
+    // Attempt to use task_1 again, should fail.
+
+
     DD_TaskList_Remove( task_2->task_handle , &active_list );
+    vTaskDelete( task_2->task_handle );
+    DD_Task_Free(task_2);
+    DD_Task_Free(task_3); // check removal safety verification
     DD_TaskList_Remove( task_3->task_handle , &active_list );
+    vTaskDelete( task_3->task_handle );
+    DD_Task_Free(task_3);
 
 	return;
 }

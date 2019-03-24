@@ -27,7 +27,7 @@ DD_TaskHandle_t DD_Task_Allocate()
 bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 {
 	// return false if the task wasn't removed from active/overdue queue, or removed from active tasks.
-	if(task_to_remove->task_handle != NULL || task_to_remove->next_cell != NULL || task_to_remove->previous_cell != NULL)
+	if(task_to_remove->next_cell != NULL || task_to_remove->previous_cell != NULL)
 	{
 		printf("ERROR(DD_Task_Free): Forgot to remove task from list, not deleting it. Fix the code.\n");
 		return false;
@@ -120,7 +120,7 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 		}
 		else
 		{
-			if( iterator->next_cell == insert_list->list_tail ) // reached the end of the list, insert at end.
+			if( iterator->next_cell == NULL ) // reached the end of the list (tail), insert at end.
 			{
 				task_to_insert->next_cell     = NULL;
 				task_to_insert->previous_cell = iterator;
@@ -147,7 +147,7 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 // From head of the list, decrement priority until the insertion location is reached.
 void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
 {
-	if(remove_list->list_length == 0)
+	if( remove_list->list_length == 0 )
 	{
 		printf("ERROR(DD_TaskList_Remove): trying to remove a task from an empty list...\n");
 		return;
@@ -164,14 +164,18 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 			DD_TaskHandle_t next_task = iterator->next_cell;
 
 			if( prev_task == NULL ) // OR if(task_to_remove == remove_list->list_head)
-				remove_list->list_head = next_task;
+				remove_list->list_head = NULL;
 			if( next_task == NULL ) // OR if(task_to_remove == remove_list->list_tail)
-				remove_list->list_tail = prev_task;
+				remove_list->list_tail = NULL;
 
 			prev_task->next_cell     = next_task;
 			next_task->previous_cell = prev_task;
 
 			(remove_list->list_length)--; // decrement the list size
+
+			// Clear next/prev cell for removing task
+			iterator->previous_cell = NULL;
+			iterator->next_cell     = NULL;
 
 			return; // done with the removal
 		}
