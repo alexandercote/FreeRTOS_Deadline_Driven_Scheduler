@@ -7,7 +7,7 @@
 
 #include "DD_Scheduler.h"
 
-
+/*--------------------------- DD Scheduler Variables --------------------------------*/
 
 static DD_TaskList_t active_list;
 static DD_TaskList_t overdue_list;
@@ -17,7 +17,7 @@ QueueHandle_t DD_Message_Queue = NULL;
 //QueueHandle_t DD_Create_Message = 0;
 //QueueHandle_t DD_Delete_Message = 0;
 
-
+/*--------------------------- DD Scheduler --------------------------------*/
 
 /* Pseudo-Code
  * Receive request from one of 4 helper functions
@@ -85,6 +85,10 @@ void DD_Scheduler( void *pvParameters )
 
 	}
 }
+
+
+
+/*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
 /*
  * This primitive, creates a deadline driven scheduled task. It follows the steps outlined below

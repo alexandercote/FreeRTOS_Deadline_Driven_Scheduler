@@ -10,7 +10,7 @@
 
 #include "includes.h"
 
-// Priority Definition
+/*--------------------------- Task Priority Definitions --------------------------------*/
 
 # define DD_TASK_PRIORITY_IDLE           (0)
 # define DD_TASK_PRIORITY_MINIMUM        (1)
@@ -18,6 +18,8 @@
 # define DD_TASK_PRIORITY_EXECUTION_BASE (3)
 # define DD_TASK_PRIORITY_SCHEDULER      (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
 
+
+/*--------------------------- Task Element Definition --------------------------------*/
 
 typedef struct DD_Task_t
 {
@@ -32,6 +34,9 @@ typedef struct DD_Task_t
 
 typedef DD_Task_t* DD_TaskHandle_t;
 
+
+/*--------------------------- Task List Definition --------------------------------*/
+
 typedef struct DD_TaskList_t
 {
 	uint32_t        list_length;
@@ -42,8 +47,7 @@ typedef struct DD_TaskList_t
 typedef DD_TaskList_t* DD_TaskListHandle_t;
 
 
-
-// Task Creation/Deletion (List Elements)
+/*--------------------------- Task Creation/Deletion (List Elements) --------------------------------*/
 
 // Creates a DD_TaskHandle_t
 DD_TaskHandle_t DD_Task_Allocate();
@@ -51,11 +55,13 @@ DD_TaskHandle_t DD_Task_Allocate();
 bool DD_Task_Free( DD_TaskHandle_t task_to_remove );
 
 
-
-// Task List Access Functions
+/*--------------------------- Task Initialization --------------------------------*/
 
 // Initialize list with 0 values.
 void DD_TaskList_Init( DD_TaskListHandle_t init_list );
+
+
+/*--------------------------- Task List Access Functions --------------------------------*/
 
 // Insert element at end of the list.
 void DD_TaskList_Basic_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHandle_t insert_list );

@@ -7,7 +7,8 @@
 
 #include "DD_Task_List.h"
 
-// Task Creation/Deletion (List Elements)
+/*--------------------------- Task Creation/Deletion (List Elements) --------------------------------*/
+
 DD_TaskHandle_t DD_Task_Allocate()
 {
 	DD_TaskHandle_t newtask = (DD_TaskHandle_t)pvPortMalloc(sizeof(DD_Task_t));
@@ -39,6 +40,8 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 }
 
 
+/*--------------------------- Task Initialization --------------------------------*/
+
 // Init the list structure with empty values.
 void DD_TaskList_Init( DD_TaskListHandle_t init_list )
 {
@@ -48,7 +51,7 @@ void DD_TaskList_Init( DD_TaskListHandle_t init_list )
 }
 
 
-// Task List Access Functions
+/*--------------------------- Task List Access Functions --------------------------------*/
 
 //DD_TaskList_Basic_Insert -> inserts element at the end
 
