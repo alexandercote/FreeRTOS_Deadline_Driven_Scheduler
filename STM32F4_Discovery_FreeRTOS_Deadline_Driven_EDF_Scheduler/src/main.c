@@ -84,8 +84,8 @@ int main(void)
 {
 	HardwareInit(); // Initialize the GPIO and ADC
 
-
-	xTaskCreate( MonitorTask , "Monitoring Task",configMINIMAL_STACK_SIZE ,NULL ,DD_TASK_PRIORITY_MONITOR,   NULL);
+	xTaskCreate( DD_Scheduler , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+	xTaskCreate( MonitorTask  , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
@@ -105,8 +105,6 @@ void HardwareInit()
 	/*
 	// 1. Init GPIO
 	GPIO_InitTypeDef      SHIFT_1_GPIO_InitStructure;
-	GPIO_InitTypeDef      SHIFT_2_GPIO_InitStructure;
-	GPIO_InitTypeDef      TRAFFIC_GPIO_InitStructure;
 
 	// Enable all GPIO clocks for GPIO, reduce potential of missing one in future updates.
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -121,18 +119,6 @@ void HardwareInit()
     SHIFT_1_GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;                        // Disable pull-ups / pull-downs
     SHIFT_1_GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;                        // Set higher speed to allow quick shifting refresh for shift register (Max for shift register itself is 25Mhz)
     GPIO_Init(SHIFT_REG_1_PORT, &SHIFT_1_GPIO_InitStructure);
-
-    SHIFT_2_GPIO_InitStructure.GPIO_Pin   = SHIFT_REG_2_PIN | SHIFT_REG_CLK_2_PIN;   // Shift register 2 output and clock set on same unique GPIO port.
-    SHIFT_2_GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;                           // Set output mode
-    SHIFT_2_GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                           // Set push-pull mode
-    SHIFT_2_GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;                        // Disable pull-ups / pull-downs
-    GPIO_Init(SHIFT_REG_2_PORT, &SHIFT_2_GPIO_InitStructure);
-
-    TRAFFIC_GPIO_InitStructure.GPIO_Pin   = TRAFFIC_LIGHT_RED_PIN | TRAFFIC_LIGHT_YELLOW_PIN | TRAFFIC_LIGHT_GREEN_PIN;    // Traffic light GPIO same unique GPIO port.
-    TRAFFIC_GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;                                                                 // Set output mode
-    TRAFFIC_GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                                                                 // Set push-pull mode
-    TRAFFIC_GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;                                                              // Disable pull-ups / pull-downs
-    GPIO_Init(TRAFFIC_LIGHT_PORT, &TRAFFIC_GPIO_InitStructure);
 
 
 	// 2. Init ADC

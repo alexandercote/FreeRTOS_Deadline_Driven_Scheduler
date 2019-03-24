@@ -35,7 +35,7 @@ QueueHandle_t DD_Message_Queue = NULL;
 // -> Overdue task could eliminate items, and then later on DD_Message_Delete could be called...
 //      -> Solved by checked if item is in the active list first
 
-void DD_Scheduler(  void *pvParameters )
+void DD_Scheduler( void *pvParameters )
 {
 	DD_Message_t received_message;
 
