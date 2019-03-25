@@ -89,6 +89,24 @@ void DD_Scheduler( void *pvParameters )
 }
 
 
+// Initializes the lists and communication queues necessary for the DD_Scheduler
+void DD_Scheduler_Init()
+{
+	// Step 1: Initialize the active and overdue list
+	DD_TaskList_Init( &active_list );
+	DD_TaskList_Init( &overdue_list );
+
+	// Step 2: Initialize DD_Scheduler_Message_Queue
+	DD_Scheduler_Message_Queue = xQueueCreate(DD_TASK_RANGE, sizeof(DD_Message_t));
+
+	// Step 3: Initialize DD_Monitor_Message_Queue
+	DD_Monitor_Message_Queue = xQueueCreate(2, sizeof(DD_Message_t)); // Should only ever have 2 requests on the queue.
+
+	// Step 4: Create the DD_Scheduler and Monitor Tasks
+	xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+	xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
+
+}
 
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 

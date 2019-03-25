@@ -19,6 +19,7 @@
 # define DD_TASK_PRIORITY_EXECUTION_BASE (4)
 # define DD_TASK_PRIORITY_SCHEDULER      (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
 
+# define DD_TASK_RANGE (DD_TASK_PRIORITY_SCHEDULER - 1 - DD_TASK_PRIORITY_EXECUTION_BASE) // Number of tasks allowed
 
 /*--------------------------- Task Element Definition --------------------------------*/
 

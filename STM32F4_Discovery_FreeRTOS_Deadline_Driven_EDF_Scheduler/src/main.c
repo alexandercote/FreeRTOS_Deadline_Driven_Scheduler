@@ -73,7 +73,6 @@
 #include "DD_Monitor_Task.h"
 #include "Periodic_Task_Creator.h"
 
-volatile unsigned long ulHighFrequencyTimerTicks = 0;
 
 // Initialization declaration
 void HardwareInit(void);
@@ -132,6 +131,12 @@ void List_Tests()
     DD_TaskList_Deadline_Insert( task_1 , &active_list );
     DD_TaskList_Deadline_Insert( task_2 , &active_list );
     DD_TaskList_Deadline_Insert( task_3 , &active_list );
+
+    xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
+    vTaskStartScheduler();
+
+
+
     DD_TaskList_Remove( task_1->task_handle , &active_list );
     vTaskDelete( task_1->task_handle );
     DD_Task_Free(task_1);

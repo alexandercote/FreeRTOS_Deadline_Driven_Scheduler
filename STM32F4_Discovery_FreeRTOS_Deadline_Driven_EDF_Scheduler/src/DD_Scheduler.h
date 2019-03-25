@@ -36,7 +36,8 @@ typedef struct DD_Message_t
 
 /*--------------------------- DD Scheduler --------------------------------*/
 
-void DD_Scheduler();
+void DD_Scheduler( void );
+void DD_Scheduler_Init( void );
 
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
