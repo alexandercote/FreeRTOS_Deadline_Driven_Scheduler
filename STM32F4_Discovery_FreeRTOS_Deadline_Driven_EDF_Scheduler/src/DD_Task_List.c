@@ -191,7 +191,7 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 	iterator = remove_list->list_tail;
 	vTaskPrioritySet(iterator->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
 
-	while( iterator != NULL )
+	while( iterator->previous_cell != NULL )
 	{
 		itr_priority++;
 		iterator = iterator->previous_cell;
@@ -256,12 +256,21 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
 // Returns a string of
 char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 {
+	// Assume 30 characters max for name, and 10 characters for deadline.
+	uint32_t list_size = list->list_length;
+	uint32_t size_of_buffer = 40 * list_size;
+	char* outputbuffer = (char*)pvPortMalloc(size_of_buffer); // vPortFree in DD_Monitor_Task
+
 	DD_TaskHandle_t iterator = list->list_head; // start from head
-	char * outputbuffer;
 	while( iterator != NULL )
 	{
+		char iteration_buffer[50];
+		sprintf( iteration_buffer, "Task Name = %s, Deadline = %d \n", iterator->task_name, iterator->deadline );
+		strcat( outputbuffer, iteration_buffer );
 
+		iterator = iterator->next_cell;
 	}
+	return outputbuffer;
 }
 
 
