@@ -16,6 +16,7 @@ static DD_TaskList_t overdue_list;
 QueueHandle_t DD_Scheduler_Message_Queue = NULL;
 QueueHandle_t DD_Monitor_Message_Queue = NULL;
 
+
 /*--------------------------- DD Scheduler --------------------------------*/
 
 /* Pseudo-Code
@@ -76,17 +77,14 @@ void DD_Scheduler( void *pvParameters )
 
 
 					break;
-			}
+			} // end switch
 
 			// Clear overdue tasks
 			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
 
-
-		}
-
-
-	}
-}
+		} // end queue receive
+	} // end while
+} // end DD_Scheduler
 
 
 
@@ -112,7 +110,7 @@ void DD_Scheduler_Init()
 	xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
 	xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
 
-}
+} // end DD_Scheduler_Init
 
 
 /*
@@ -125,7 +123,6 @@ void DD_Scheduler_Init()
  * 6. Destroys the queue
  * 7. Returns to the invoking task
  */
-
 uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
 {
 	// The task handle is automatically updated after xTaskCreate is called, due to the pointer passed into the function
@@ -144,13 +141,12 @@ uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
     ulTaskNotifyTake( pdTRUE,          /* Clear the notification value before exiting. */
                       portMAX_DELAY ); /* Block indefinitely. */
 
-	return 0;
-}
+	return 1;
+} // end DD_Task_Create
 
 
 uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 {
-
 	// Create the message structure, only know the sender but no info, but thats all thats required for DD_Scheduler.
 	DD_Message_t delete_message = { DD_Message_Delete , delete_task , NULL };
 
@@ -165,20 +161,34 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 	// Deletes the task after DD_Scheduler has removed it from the active list and wiped its memory.
 	vTaskDelete( delete_task );
 
-	return 0;
-}
+	return 1;
+} // end DD_Task_Delete
+
 
 // Function will request DD_Scheduler to return a string containing info about the active list.
-DD_TaskListHandle_t DD_Return_Active_List()
+uint32_t DD_Return_Active_List( void )
 {
+	// Create the message structure, all that is required is the request type
+	DD_Message_t active_list = { DD_Message_ActiveList, NULL, NULL };
+
+	// Send the message to the DD_Scheduler queue
+	xQueueSend(DD_Scheduler_Message_Queue, &active_list, (TickType_t)10 );
 
 
 
-	return &active_list;
-}
+	return 1;
+} // end DD_Return_Active_List
 
 // Function will request DD_Scheduler to return a string containing info about the overdue list.
-DD_TaskListHandle_t DD_Return_Overdue_List()
+uint32_t DD_Return_Overdue_List( void )
 {
-	return &overdue_list;
-}
+	// Create the message structure, all that is required is the request type
+	DD_Message_t overdue_list = { DD_Message_OverdueList, NULL, NULL };
+
+	// Send the message to the DD_Scheduler queue
+	xQueueSend(DD_Scheduler_Message_Queue, &active_list, (TickType_t)10 );
+
+
+
+	return 1;
+} // end DD_Return_Overdue_List
