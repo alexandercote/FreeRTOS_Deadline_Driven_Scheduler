@@ -89,6 +89,12 @@ void DD_Scheduler( void *pvParameters )
 }
 
 
+
+
+
+/*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
+
+
 // Initializes the lists and communication queues necessary for the DD_Scheduler
 void DD_Scheduler_Init()
 {
@@ -108,7 +114,6 @@ void DD_Scheduler_Init()
 
 }
 
-/*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
 /*
  * This primitive, creates a deadline driven scheduled task. It follows the steps outlined below
