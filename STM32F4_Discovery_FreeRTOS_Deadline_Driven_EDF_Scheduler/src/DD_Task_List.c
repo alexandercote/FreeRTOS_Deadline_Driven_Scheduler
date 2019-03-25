@@ -265,7 +265,7 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 	while( iterator != NULL )
 	{
 		char iteration_buffer[50];
-		sprintf( iteration_buffer, "Task Name = %s, Deadline = %d \n", iterator->task_name, iterator->deadline );
+		sprintf( iteration_buffer, "Task Name = %s, Deadline = %u \n", iterator->task_name, (unsigned int) iterator->deadline ); // need typecast to unsigned int to avoid warning.
 		strcat( outputbuffer, iteration_buffer );
 
 		iterator = iterator->next_cell;

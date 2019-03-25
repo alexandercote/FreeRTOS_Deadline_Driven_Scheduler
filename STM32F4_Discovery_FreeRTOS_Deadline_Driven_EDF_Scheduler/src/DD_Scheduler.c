@@ -70,8 +70,14 @@ void DD_Scheduler( void *pvParameters )
 
 					break;
 				case(DD_Message_ActiveList):
+
+					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &active_list );
+
 					break;
 				case(DD_Message_OverdueList):
+
+					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &overdue_list );
+
 					break;
 			}
 
@@ -152,7 +158,7 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 	return 0;
 }
 
-
+// Function will request DD_Scheduler to return a string containing info about the active list.
 DD_TaskListHandle_t DD_Return_Active_List()
 {
 
@@ -161,7 +167,7 @@ DD_TaskListHandle_t DD_Return_Active_List()
 	return &active_list;
 }
 
-
+// Function will request DD_Scheduler to return a string containing info about the overdue list.
 DD_TaskListHandle_t DD_Return_Overdue_List()
 {
 	return &overdue_list;
