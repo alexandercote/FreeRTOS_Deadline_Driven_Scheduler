@@ -177,6 +177,9 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 			iterator->previous_cell = NULL;
 			iterator->next_cell     = NULL;
 
+			// Free DD_Task_t memory
+			DD_Task_Free( iterator );
+
 			return; // done with the removal
 		}
 		//Current isn't the one to remove. Decrement priority.

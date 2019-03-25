@@ -40,7 +40,7 @@ void DD_Scheduler();
 
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
-TaskHandle_t        DD_Task_Create(DD_TaskHandle_t create_task);
+uint32_t            DD_Task_Create(DD_TaskHandle_t create_task);
 uint32_t            DD_Task_Delete(TaskHandle_t delete_task);
 DD_TaskListHandle_t DD_Return_Active_List();
 DD_TaskListHandle_t DD_Return_Overdue_List();
