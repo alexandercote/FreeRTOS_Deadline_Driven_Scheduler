@@ -101,7 +101,7 @@ int main(void)
 void Integration_Tests()
 {
     DD_Scheduler_Init();
-
+    //xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
 	DD_TaskHandle_t task_1 = DD_Task_Allocate();
 	task_1->task_function = PeriodicTask;
 	task_1->task_name     = "task uno";
@@ -120,6 +120,7 @@ void Integration_Tests()
 	DD_Task_Create(task_1);
 	DD_Task_Create(task_2);
 	DD_Task_Create(task_3);
+
 
     vTaskStartScheduler();
 }

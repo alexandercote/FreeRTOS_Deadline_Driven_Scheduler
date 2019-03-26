@@ -13,7 +13,6 @@
 #include "DD_Task_List.h"
 
 
-
 /*--------------------------- DD Scheduler Message --------------------------------*/
 
 // Message types
