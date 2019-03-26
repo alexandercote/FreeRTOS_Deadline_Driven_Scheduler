@@ -145,7 +145,7 @@ uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
 
 
 	// Create the message structure, with the DD_TaskHandle_t in the data field for the linked list element.
-	DD_Message_t create_message = { DD_Message_Create , create_task->task_handle, create_task };
+	DD_Message_t create_message = { DD_Message_Create , xTaskGetCurrentTaskHandle() , create_task };
 
 	// Send the message to the DD_Scheduler queue
 	xQueueSend( DD_Scheduler_Message_Queue, &create_message, (TickType_t) portMAX_DELAY );

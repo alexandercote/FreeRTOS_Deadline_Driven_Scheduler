@@ -22,7 +22,7 @@ void PeriodicTask ( void *pvParameters )
 	{
 		STM_EVAL_LEDToggle(amber_led);
 		vTaskDelay(2000);
-		STM_EVAL_LEDToggle(amber_led);
+		STM_EVAL_LEDToggle(red_led);
 		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
 		DD_Task_Delete( my_task );
 	}
@@ -44,6 +44,18 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 		generated_task->task_name     = "PTGen_1_Task";
 
 		TickType_t current_time = xTaskGetTickCount();     // fetch the current time to calculate deadline.
+
+		generated_task->creation_time = current_time;
+		generated_task->deadline      = current_time + deadline_gen_1;
+
+		DD_Task_Create( generated_task );
+		vTaskDelay( 300 );
+
+		generated_task->creation_time = current_time;
+		generated_task->deadline      = current_time + deadline_gen_1;
+
+		DD_Task_Create( generated_task );
+		vTaskDelay( 300 );
 
 		generated_task->creation_time = current_time;
 		generated_task->deadline      = current_time + deadline_gen_1;
