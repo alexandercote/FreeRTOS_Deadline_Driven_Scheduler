@@ -23,9 +23,10 @@ void PeriodicTask ( void *pvParameters )
 // Prob should  change this to pass in parameters to generate or something, but this works for one task.
 void PeriodicTaskGenerator_1( void *pvParameters )
 {
-	TickType_t deadline_gen_1 = 500;
 	while (1)
 	{
+		printf("Generating tasks!\n");
+		TickType_t deadline_gen_1 = 500;
 		DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
 		generated_task->task_function = PeriodicTask;
@@ -38,7 +39,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
 		DD_Task_Create( generated_task );
 
-		vTaskDelay( 100 );
+		vTaskDelay( 200 );
 	}
 }
 
