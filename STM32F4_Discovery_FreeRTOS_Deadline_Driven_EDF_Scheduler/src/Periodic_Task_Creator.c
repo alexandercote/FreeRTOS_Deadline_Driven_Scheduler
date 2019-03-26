@@ -7,17 +7,25 @@
 
 #include "Periodic_Task_Creator.h"
 
+/*
+ * LED defines in include.h
+ * amber_led	LED3
+ * green_led	LED4
+ * red_led		LED5
+ * blue_led	    LED6
+ */
+
 // task function
 void PeriodicTask ( void *pvParameters )
 {
-
-	vTaskDelay(200);
 	while(1)
 	{
+		STM_EVAL_LEDToggle(amber_led);
+		vTaskDelay(2000);
+		STM_EVAL_LEDToggle(amber_led);
 		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
 		DD_Task_Delete( my_task );
 	}
-
 }
 
 // Prob should  change this to pass in parameters to generate or something, but this works for one task.
@@ -25,8 +33,11 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 {
 	while (1)
 	{
+		// Toggle the blue LED to know that the periodic task generator is running
+		STM_EVAL_LEDToggle(blue_led);
+
 		printf("Generating tasks!\n");
-		TickType_t deadline_gen_1 = 500;
+		TickType_t deadline_gen_1 = 5000;
 		DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
 		generated_task->task_function = PeriodicTask;
@@ -39,7 +50,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
 		DD_Task_Create( generated_task );
 
-		vTaskDelay( 1000 );
+		vTaskDelay( 5000 );
 	}
 }
 

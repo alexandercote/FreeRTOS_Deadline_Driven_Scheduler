@@ -24,4 +24,11 @@
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
 
+// Hardware defines
+#define amber_led	LED3
+#define green_led	LED4
+#define red_led		LED5
+#define blue_led	LED6
+
+
 #endif /* INCLUDES_H_ */

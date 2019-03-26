@@ -158,6 +158,15 @@ void HardwareInit()
 	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	NVIC_SetPriorityGrouping( 0 );
 
+	/* Initialize LEDs */
+	STM_EVAL_LEDInit(amber_led);
+	STM_EVAL_LEDInit(green_led);
+	STM_EVAL_LEDInit(red_led);
+	STM_EVAL_LEDInit(blue_led);
+
+	// Initialize the pushbutton
+	STM_EVAL_PBInit( BUTTON_USER, BUTTON_MODE_EXTI );
+
 	/*
 	// 1. Init GPIO
 	GPIO_InitTypeDef      SHIFT_1_GPIO_InitStructure;
