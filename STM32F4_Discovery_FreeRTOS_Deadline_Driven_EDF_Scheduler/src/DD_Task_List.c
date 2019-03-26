@@ -85,7 +85,6 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 		insert_list->list_head = task_to_insert;
 		insert_list->list_tail = task_to_insert;
 		vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
-		printf("Inserted Head.");
 		return; // quit early so the next part doesn't run
 	}
 
@@ -259,10 +258,11 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
 // Returns a string of
 char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 {
-	// Assume 30 characters max for name, and 10 characters for deadline.
+	// Assume 20 characters max for name, and 10 characters for deadline.
 	uint32_t list_size = list->list_length;
-	uint32_t size_of_buffer = 40 * list_size;
-	char* outputbuffer = (char*)pvPortMalloc(size_of_buffer); // vPortFree in DD_Monitor_Task
+	uint32_t size_of_buffer = 30 * list_size;
+	char* outputbuffer = (char*)pvPortMalloc(size_of_buffer); // vPortFree in DD_Return_Active_List/DD_Return_Overdue_List
+	outputbuffer[0] = '\0'; // ensure that the new buffer doesn't hold an old string
 
 	DD_TaskHandle_t iterator = list->list_head; // start from head
 	while( iterator != NULL )

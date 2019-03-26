@@ -69,12 +69,16 @@ void DD_Scheduler( void *pvParameters )
 					// Store the string in the message data, which will be sent back to reply
 					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &active_list );
 
+					// Reply to request with data.
+					xQueueSend( DD_Monitor_Message_Queue, &(received_message.message_data), (TickType_t)10 );
 
 					break;
 				case(DD_Message_OverdueList):
 					// Store the string in the message data, which will be sent back to reply
 					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &overdue_list );
 
+					// Reply to request with data.
+					xQueueSend( DD_Monitor_Message_Queue, &(received_message.message_data), (TickType_t)10 );
 
 					break;
 			} // end switch
@@ -165,16 +169,39 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 } // end DD_Task_Delete
 
 
+/*--------------------------- DD Scheduler Monitoring Functionality --------------------------------*/
+
+void MonitorTask ( void *pvParameters )
+{
+	while(1)
+	{
+		uint32_t tasks_count = uxTaskGetNumberOfTasks();
+		printf("Number of tasks = %u \n", (unsigned int)tasks_count);
+		DD_Return_Active_List();
+		DD_Return_Overdue_List();
+
+		vTaskDelay(10000);
+	}
+}
+
 // Function will request DD_Scheduler to return a string containing info about the active list.
 uint32_t DD_Return_Active_List( void )
 {
 	// Create the message structure, all that is required is the request type
 	DD_Message_t active_list = { DD_Message_ActiveList, NULL, NULL };
+	char* reply;
 
 	// Send the message to the DD_Scheduler queue
 	xQueueSend(DD_Scheduler_Message_Queue, &active_list, (TickType_t)10 );
 
+	// wait until the response is present
+	while (uxQueueMessagesWaiting(DD_Monitor_Message_Queue) == 0)
 
+	if( xQueueReceive( DD_Monitor_Message_Queue, &reply, (TickType_t)10 ) )
+	{
+		printf( "Overdue Tasks: \n %s", (char*)reply);
+		vPortFree(reply);
+	}
 
 	return 1;
 } // end DD_Return_Active_List
@@ -184,10 +211,19 @@ uint32_t DD_Return_Overdue_List( void )
 {
 	// Create the message structure, all that is required is the request type
 	DD_Message_t overdue_list = { DD_Message_OverdueList, NULL, NULL };
+	char* reply;
 
 	// Send the message to the DD_Scheduler queue
-	xQueueSend(DD_Scheduler_Message_Queue, &active_list, (TickType_t)10 );
+	xQueueSend(DD_Scheduler_Message_Queue, &overdue_list, (TickType_t)10 );
 
+	// wait until the response is present
+	while (uxQueueMessagesWaiting(DD_Monitor_Message_Queue) == 0)
+
+	if( xQueueReceive( DD_Monitor_Message_Queue, &reply, (TickType_t)10 ) )
+	{
+		printf( "Overdue Tasks: \n %s", (char*)reply);
+		vPortFree(reply);
+	}
 
 
 	return 1;

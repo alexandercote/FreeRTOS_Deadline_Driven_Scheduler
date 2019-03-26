@@ -70,7 +70,6 @@
 
 #include "FreeRTOSHooks.h"
 #include "DD_Scheduler.h"
-#include "DD_Monitor_Task.h"
 #include "Periodic_Task_Creator.h"
 
 
@@ -106,8 +105,7 @@ void List_Tests()
 	DD_TaskList_t active_list;
 	DD_TaskList_Init( &active_list );
 
-	// Seems to hard fault if all tasks are priority of 1, and try to elevate one of them.
-	xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+    DD_Scheduler_Init();
 
 	DD_TaskHandle_t task_1 = DD_Task_Allocate();
 	task_1->task_function = PeriodicTask;
@@ -132,7 +130,6 @@ void List_Tests()
     DD_TaskList_Deadline_Insert( task_2 , &active_list );
     DD_TaskList_Deadline_Insert( task_3 , &active_list );
 
-    xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
     vTaskStartScheduler();
 
 
