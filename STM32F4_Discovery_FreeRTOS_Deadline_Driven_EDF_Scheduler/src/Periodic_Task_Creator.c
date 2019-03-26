@@ -29,7 +29,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 		DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
 		generated_task->task_function = PeriodicTask;
-		generated_task->task_name     = "PeriodicTaskGenerator_1_Task";
+		generated_task->task_name     = "PTGen_1_Task";
 
 		TickType_t current_time = xTaskGetTickCount();     // fetch the current time to calculate deadline.
 

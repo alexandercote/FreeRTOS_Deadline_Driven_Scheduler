@@ -8,10 +8,8 @@
 #ifndef DD_SCHEDULER_H_
 #define DD_SCHEDULER_H_
 
-
 #include "includes.h"
 #include "DD_Task_List.h"
-
 
 /*--------------------------- DD Scheduler Message --------------------------------*/
 

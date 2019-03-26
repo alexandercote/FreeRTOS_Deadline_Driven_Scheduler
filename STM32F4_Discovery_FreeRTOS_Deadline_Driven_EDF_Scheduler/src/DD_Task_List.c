@@ -260,7 +260,7 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 {
 	// Assume 20 characters max for name, and 10 characters for deadline.
 	uint32_t list_size = list->list_length;
-	uint32_t size_of_buffer = (configMAX_TASK_NAME_LEN * list_size) + 1;
+	uint32_t size_of_buffer = ( (configMAX_TASK_NAME_LEN + 50) * (list_size + 1)) ;
 	printf("Buffer size = %u \n", (unsigned int) size_of_buffer);
 	char* outputbuffer = (char*)pvPortMalloc(size_of_buffer); // vPortFree in DD_Return_Active_List/DD_Return_Overdue_List
 	outputbuffer[0] = '\0'; // ensure that the new buffer doesn't hold an old string
@@ -268,7 +268,7 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 	DD_TaskHandle_t iterator = list->list_head; // start from head
 	while( iterator != NULL )
 	{
-		char iteration_buffer[50];
+		char iteration_buffer[70];
 		sprintf( iteration_buffer, "Task Name = %s, Deadline = %u \n", iterator->task_name, (unsigned int) iterator->deadline ); // need typecast to unsigned int to avoid warning.
 		strcat( outputbuffer, iteration_buffer );
 

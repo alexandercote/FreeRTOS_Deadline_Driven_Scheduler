@@ -76,20 +76,16 @@
 // Initialization declaration
 void HardwareInit( void );
 void List_Tests( void );
-void Integration_Tests( void );
-
 
 /*-----------------------------------------------------------*/
 
 int main(void)
 {
 	HardwareInit(); // Initialize the GPIO and ADC
-	Integration_Tests();
 
+	DD_Scheduler_Init();
 
-	//xTaskCreate( DD_Scheduler            , "Deadline Driven Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
-	//xTaskCreate( PeriodicTaskGenerator_1 , "Generator Task"                 , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , NULL);
-	//xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
+	xTaskCreate( PeriodicTaskGenerator_1 , "Generator Task"                 , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , NULL);
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
@@ -98,32 +94,6 @@ int main(void)
 } // end main
 /*-----------------------------------------------------------*/
 
-void Integration_Tests()
-{
-    DD_Scheduler_Init();
-    //xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
-	DD_TaskHandle_t task_1 = DD_Task_Allocate();
-	task_1->task_function = PeriodicTask;
-	task_1->task_name     = "task uno";
-	task_1->deadline      = (TickType_t) 300;
-
-	DD_TaskHandle_t task_2 = DD_Task_Allocate();
-	task_2->task_function = PeriodicTask;
-	task_2->task_name     = "task dos";
-	task_2->deadline      = (TickType_t) 200;
-
-	DD_TaskHandle_t task_3 = DD_Task_Allocate();
-	task_3->task_function = PeriodicTask;
-	task_3->task_name     = "task tres";
-	task_3->deadline      = (TickType_t) 100;
-
-	DD_Task_Create(task_1);
-	DD_Task_Create(task_2);
-	DD_Task_Create(task_3);
-
-
-    vTaskStartScheduler();
-}
 
 
 // Tests the insert and delete functions.
