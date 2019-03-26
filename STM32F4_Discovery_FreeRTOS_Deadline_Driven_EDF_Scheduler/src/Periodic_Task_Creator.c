@@ -38,7 +38,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
 		DD_Task_Create( generated_task );
 
-		vTaskDelay( deadline_gen_1 );
+		vTaskDelay( 100 );
 	}
 }
 
