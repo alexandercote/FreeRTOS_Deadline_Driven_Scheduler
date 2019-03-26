@@ -169,52 +169,6 @@ void HardwareInit()
 	NVIC_SetPriority( USER_BUTTON_EXTI_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1 ); // Must be above configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
 
 
-	/*
-	// 1. Init GPIO
-	GPIO_InitTypeDef      SHIFT_1_GPIO_InitStructure;
-
-	// Enable all GPIO clocks for GPIO, reduce potential of missing one in future updates.
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-
-    SHIFT_1_GPIO_InitStructure.GPIO_Pin   = SHIFT_REG_1_PIN | SHIFT_REG_CLK_1_PIN;   // Shift register 1 output and clock set on same unique GPIO port.
-    SHIFT_1_GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;                           // Set output mode
-    SHIFT_1_GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                           // Set push-pull mode
-    SHIFT_1_GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;                        // Disable pull-ups / pull-downs
-    SHIFT_1_GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;                        // Set higher speed to allow quick shifting refresh for shift register (Max for shift register itself is 25Mhz)
-    GPIO_Init(SHIFT_REG_1_PORT, &SHIFT_1_GPIO_InitStructure);
-
-
-	// 2. Init ADC
-	ADC_InitTypeDef       ADC_InitStructure;
-	GPIO_InitTypeDef      ADC_GPIO_InitStructure;
-
-	// Enable GPIO and ADC clocks for ADC
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-
-    // Configure ADC1 Channel11 pin as analog input
-    ADC_GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_1;                              // Using PC1, channel 11 of ADC
-    ADC_GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                            // Set analog mode
-    ADC_GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;                        // Set push-pull mode
-    GPIO_Init(GPIOC, &ADC_GPIO_InitStructure);
-
-    // ADC1 Init
-    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;                      // Set ADC for 12 bit resolution (highest)
-    ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;                          // Enable continuous scanning for ADC
-    ADC_InitStructure.ADC_ExternalTrigConv = DISABLE;
-    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-    ADC_InitStructure.ADC_NbrOfConversion = 1;                                  // Perform a single conversion when start conversion is called
-    ADC_Init(ADC1, &ADC_InitStructure);
-
-    ADC_Cmd(ADC1, ENABLE );                                                     // Enable ADC1
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_11 , 1, ADC_SampleTime_84Cycles);
-    */
 } // end HardwareInit
 
 

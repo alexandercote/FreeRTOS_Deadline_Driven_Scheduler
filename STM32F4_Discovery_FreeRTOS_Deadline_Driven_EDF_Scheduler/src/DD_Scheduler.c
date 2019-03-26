@@ -73,18 +73,49 @@ void DD_Scheduler( void *pvParameters )
 						xQueueReset( DD_Monitor_Message_Queue );
 					}
 					// Reply to request with data.
-					xQueueSend( DD_Monitor_Message_Queue, &received_message, (TickType_t) portMAX_DELAY );
+
+					// Reply to request with data.
+					if( DD_Monitor_Message_Queue != NULL)
+					{
+						if( xQueueSend( DD_Monitor_Message_Queue, &received_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+						{
+							printf("ERROR: DD_Scheduler couldn't send request on DD_Monitor_Message_Queue!\n");
+							break;
+						}
+					}
+					else
+					{
+						printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
+						break;
+					}
 
 					break;
 				case(DD_Message_OverdueList):
 					// Store the string in the message data, which will be sent back to reply
 					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &overdue_list );
 
-					if(uxQueueSpacesAvailable(DD_Monitor_Message_Queue) == 0) // monitor queue is full, wipe it
+				    // Check if monitor queue is full, if so clear old data
+					if(uxQueueSpacesAvailable(DD_Monitor_Message_Queue) == 0)
 					{
 						xQueueReset( DD_Monitor_Message_Queue );
 					}
+
 					// Reply to request with data.
+					if( DD_Monitor_Message_Queue != NULL)
+					{
+						if( xQueueSend( DD_Monitor_Message_Queue, &received_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+						{
+							printf("ERROR: DD_Scheduler couldn't send request on DD_Monitor_Message_Queue!\n");
+							break;
+						}
+					}
+					else
+					{
+						printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
+						break;
+					}
+
+
 					xQueueSend( DD_Monitor_Message_Queue, &received_message, (TickType_t) portMAX_DELAY );
 
 					break;
@@ -138,17 +169,40 @@ void DD_Scheduler_Init()
  */
 uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
 {
-	// The task handle is automatically updated after xTaskCreate is called, due to the pointer passed into the function
+	// Verify that the input data isn't empty
+	if( create_task == NULL )
+	{
+		printf("ERROR: Sent NULL DD_TaskHandle_t to DD_Task_Create! \n");
+		return 0;
+	}
+
 
 	// Task create: xTaskCreate( TaskFunction_t Function ,  const char * const pcName, configMINIMAL_STACK_SIZE ,NULL ,UBaseType_t uxPriority , TaskHandle_t *pxCreatedTask);
 	xTaskCreate( create_task->task_function , create_task->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(create_task->task_handle));
 
+	if( create_task->task_handle == NULL )
+	{
+		printf("ERROR: DD_Task_Create's xTaskCreate didn't make a pointer! \n");
+		return 0;
+	}
 
 	// Create the message structure, with the DD_TaskHandle_t in the data field for the linked list element.
-	DD_Message_t create_message = { DD_Message_Create , xTaskGetCurrentTaskHandle() , create_task };
+	DD_Message_t create_task_message = { DD_Message_Create , xTaskGetCurrentTaskHandle() , create_task };
 
 	// Send the message to the DD_Scheduler queue
-	xQueueSend( DD_Scheduler_Message_Queue, &create_message, (TickType_t) portMAX_DELAY );
+	if( DD_Scheduler_Message_Queue != NULL)
+	{
+		if( xQueueSend(DD_Scheduler_Message_Queue, &create_task_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+		{
+			printf("ERROR: DD_Task_Create couldn't send request on DD_Scheduler_Message_Queue!\n");
+			return 0;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
+		return 0;
+	}
 
 	// Wait until the Scheduler replies.
     ulTaskNotifyTake( pdTRUE, (TickType_t) portMAX_DELAY ); /* Block indefinitely. */
@@ -159,21 +213,41 @@ uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
 
 uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 {
+	// Verify that the input data isn't empty
+	if( delete_task == NULL )
+	{
+		printf("ERROR: DD_Task_Delete send a NULL TaskHandle_t! \n");
+		return 0;
+	}
+
 	// Create the message structure, only know the sender but no info, but thats all thats required for DD_Scheduler.
-	DD_Message_t delete_message = { DD_Message_Delete , delete_task , NULL };
+	DD_Message_t delete_task_message = { DD_Message_Delete , delete_task , NULL };
 
-	// Send the message to the DD_Scheduler queue
-	xQueueSend( DD_Scheduler_Message_Queue, &delete_message, (TickType_t) portMAX_DELAY );
+	// SCHEDULER REQUEST SEND: Send the message to the DD_Scheduler queue
+	if( DD_Scheduler_Message_Queue != NULL)
+	{
+		if( xQueueSend(DD_Scheduler_Message_Queue, &delete_task_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+		{
+			printf("ERROR: DD_Task_Delete couldn't send request on DD_Scheduler_Message_Queue!\n");
+			return 0;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
+		return 0;
+	}
 
-	// Wait until the Scheduler replies.
+	// SCHEDULER RECEIVE: Wait until the Scheduler replies.
     ulTaskNotifyTake( pdTRUE, (TickType_t) portMAX_DELAY ); /* Block indefinitely. */
-
 
 	// Deletes the task after DD_Scheduler has removed it from the active list and wiped its memory.
 	vTaskDelete( delete_task );
 
 	return 1;
 } // end DD_Task_Delete
+
+
 
 
 /*--------------------------- DD Scheduler Monitoring Functionality --------------------------------*/
@@ -191,23 +265,42 @@ void MonitorTask ( void *pvParameters )
 	}
 }
 
+
 // Function will request DD_Scheduler to return a string containing info about the active list.
 uint32_t DD_Return_Active_List( void )
 {
 	// Create the message structure, all that is required is the request type
-	DD_Message_t active_list = { DD_Message_ActiveList, NULL, NULL };
+	DD_Message_t active_list_message = { DD_Message_ActiveList, NULL, NULL };
 
-	// Send the message to the DD_Scheduler queue
-	xQueueSend(DD_Scheduler_Message_Queue, &active_list, (TickType_t) portMAX_DELAY );
-
-	// wait until the response is present
-	//while (uxQueueMessagesWaiting(DD_Monitor_Message_Queue) == 0)
-
-	if( xQueueReceive( DD_Monitor_Message_Queue, &active_list, (TickType_t) portMAX_DELAY  ) )
+	// SCHEDULER REQUEST SEND: Send the message to the DD_Scheduler queue
+	if( DD_Scheduler_Message_Queue != NULL)
 	{
-		printf( "Active Tasks: \n%s", (char*)(active_list.message_data));
-		vPortFree(active_list.message_data);
-		active_list.message_data = NULL;
+		if( xQueueSend(DD_Scheduler_Message_Queue, &active_list_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+		{
+			printf("ERROR: DD_Return_Active_List couldn't send request on DD_Scheduler_Message_Queue!\n");
+			return 0;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
+		return 0;
+	}
+
+	// SCHEDULER RECEIVE: Wait for the response with the data.
+	if( DD_Monitor_Message_Queue != NULL)
+	{
+		if( xQueueReceive( DD_Monitor_Message_Queue, &active_list_message, (TickType_t) portMAX_DELAY  ) == pdTRUE )
+		{
+			printf( "Active Tasks: \n%s", (char*)(active_list_message.message_data));
+			vPortFree(active_list_message.message_data);
+			active_list_message.message_data = NULL;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
+		return 0;
 	}
 
 	return 1;
@@ -217,21 +310,38 @@ uint32_t DD_Return_Active_List( void )
 uint32_t DD_Return_Overdue_List( void )
 {
 	// Create the message structure, all that is required is the request type
-	DD_Message_t overdue_list = { DD_Message_OverdueList, NULL, NULL };
+	DD_Message_t overdue_list_message = { DD_Message_OverdueList, NULL, NULL };
 
-	// Send the message to the DD_Scheduler queue
-	xQueueSend(DD_Scheduler_Message_Queue, &overdue_list, (TickType_t) portMAX_DELAY );
-
-	// wait until the response is present
-	//while (uxQueueMessagesWaiting(DD_Monitor_Message_Queue) == 0)
-
-	if( xQueueReceive( DD_Monitor_Message_Queue, &overdue_list, (TickType_t) portMAX_DELAY  ) )
+	// SCHEDULER REQUEST SEND: Send the message to the DD_Scheduler queue
+	if( DD_Scheduler_Message_Queue != NULL)
 	{
-		printf( "Overdue Tasks: \n%s", (char*)(overdue_list.message_data));
-		vPortFree(overdue_list.message_data);
-		overdue_list.message_data = NULL;
+		if( xQueueSend(DD_Scheduler_Message_Queue, &overdue_list_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+		{
+			printf("ERROR: DD_Return_Overdue_List couldn't send request on DD_Scheduler_Message_Queue!\n");
+			return 0;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
+		return 0;
 	}
 
+	// SCHEDULER RECEIVE: Wait for the response with the data.
+	if( DD_Monitor_Message_Queue != NULL)
+	{
+		if( xQueueReceive( DD_Monitor_Message_Queue, &overdue_list_message, (TickType_t) portMAX_DELAY  ) == pdTRUE )
+		{
+			printf( "Overdue Tasks: \n%s", (char*)(overdue_list_message.message_data));
+			vPortFree(overdue_list_message.message_data);
+			overdue_list_message.message_data = NULL;
+		}
+	}
+	else
+	{
+		printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
+		return 0;
+	}
 
 	return 1;
 } // end DD_Return_Overdue_List
