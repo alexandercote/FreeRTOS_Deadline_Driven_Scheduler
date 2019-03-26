@@ -21,7 +21,7 @@ void PeriodicTask ( void *pvParameters )
 	while(1)
 	{
 		STM_EVAL_LEDToggle(amber_led);
-		vTaskDelay(2000);
+		vTaskDelay(200);
 		STM_EVAL_LEDToggle(red_led);
 		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
 		DD_Task_Delete( my_task );
@@ -37,7 +37,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 		STM_EVAL_LEDToggle(blue_led);
 
 		printf("Generating tasks!\n");
-		TickType_t deadline_gen_1 = 5000;
+		TickType_t deadline_gen_1 = 500;
 		DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
 		generated_task->task_function = PeriodicTask;
@@ -49,20 +49,8 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 		generated_task->deadline      = current_time + deadline_gen_1;
 
 		DD_Task_Create( generated_task );
-		vTaskDelay( 300 );
 
-		generated_task->creation_time = current_time;
-		generated_task->deadline      = current_time + deadline_gen_1;
-
-		DD_Task_Create( generated_task );
-		vTaskDelay( 300 );
-
-		generated_task->creation_time = current_time;
-		generated_task->deadline      = current_time + deadline_gen_1;
-
-		DD_Task_Create( generated_task );
-
-		vTaskDelay( 5000 );
+		vTaskDelay( 500 );
 	}
 }
 
