@@ -23,11 +23,20 @@
 
 /*--------------------------- Task Element Definition --------------------------------*/
 
+typedef enum DD_Task_Type_t
+{
+	DD_TT_Undefined,
+	DD_TT_Periodic,
+	DD_TT_Aperiodic
+}DD_Task_Type_t;
+
+
 typedef struct DD_Task_t
 {
 	TaskHandle_t      task_handle;
 	TaskFunction_t    task_function;
 	const char *      task_name;
+	DD_Task_Type_t    task_type;
 	TickType_t        creation_time;
 	TickType_t        deadline;
 	struct DD_Task_t* next_cell;

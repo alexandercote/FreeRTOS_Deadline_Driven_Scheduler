@@ -16,6 +16,7 @@ DD_TaskHandle_t DD_Task_Allocate()
 	newtask->task_handle   = NULL;
 	newtask->task_function = NULL;
 	newtask->task_name     = "";
+	newtask->task_type     = DD_TT_Undefined;
 	newtask->creation_time = 0;
 	newtask->deadline      = 0;
 	newtask->next_cell     = NULL;
@@ -32,6 +33,16 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 		printf("ERROR(DD_Task_Free): Forgot to remove task from list, not deleting it. Fix the code.\n");
 		return false;
 	}
+
+	// Reset the data before freeing - some errors can occur if not done
+	task_to_remove->task_handle   = NULL;
+	task_to_remove->task_function = NULL;
+	task_to_remove->task_name     = "";
+	task_to_remove->task_type     = DD_TT_Undefined;
+	task_to_remove->creation_time = 0;
+	task_to_remove->deadline      = 0;
+	task_to_remove->next_cell     = NULL;
+	task_to_remove->previous_cell = NULL;
 
 	// free the memory used by the task
 	vPortFree((void*)task_to_remove);
@@ -243,7 +254,14 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
 
 
 			// OVERDUE LIST MANAGEMENT
-			DD_TaskList_Basic_Insert(iterator, overdue_list);
+			DD_TaskList_Basic_Insert( iterator , overdue_list );
+
+
+			// TASK MANAGEMENT
+			// decrement the priority of all overdue tasks to idle, and then suspend them.
+			vTaskPrioritySet( iterator->task_handle , DD_TASK_PRIORITY_IDLE );
+			vTaskSuspend( iterator->task_handle );
+			// Might want to kill them too?
 		}
 		else // EDF active list format - no more deadlines past.
 		{

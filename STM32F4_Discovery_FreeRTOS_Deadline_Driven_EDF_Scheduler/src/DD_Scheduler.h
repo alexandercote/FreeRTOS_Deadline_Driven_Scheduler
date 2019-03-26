@@ -19,7 +19,7 @@ typedef enum DD_Message_Type_t
 	DD_Message_Create,
 	DD_Message_Delete,
 	DD_Message_ActiveList,
-	DD_Message_OverdueList,
+	DD_Message_OverdueList
 }DD_Message_Type_t;
 
 // Message structure
@@ -38,8 +38,10 @@ void DD_Scheduler( void *pvParameters );
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
 void DD_Scheduler_Init( void );
-uint32_t DD_Task_Create(DD_TaskHandle_t create_task);
-uint32_t DD_Task_Delete(TaskHandle_t delete_task);
+uint32_t DD_Task_Create( DD_TaskHandle_t create_task );
+uint32_t DD_Task_Delete( TaskHandle_t delete_task );
+
+/*--------------------------- DD Scheduler Monitoring Functions --------------------------------*/
 
 void MonitorTask ( void *pvParameters );
 uint32_t DD_Return_Active_List( void );
