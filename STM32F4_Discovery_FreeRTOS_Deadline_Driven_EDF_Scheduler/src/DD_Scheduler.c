@@ -206,6 +206,8 @@ static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
 // Initializes the lists and communication queues necessary for the DD_Scheduler
 void DD_Scheduler_Init()
 {
+	debugprintf("Starting DD_Scheduler_Init - List Init, Queue Init, Task Creation for Scheduler and Monitor.\n\n");
+
 	// Step 1: Initialize the active and overdue list
 	DD_TaskList_Init( &active_list );
 	DD_TaskList_Init( &overdue_list );
@@ -219,79 +221,116 @@ void DD_Scheduler_Init()
 	vQueueAddToRegistry(DD_Monitor_Message_Queue,"Monitor Queue");
 
 	// Step 4: Create the DD_Scheduler and Monitor Tasks
-	xTaskCreate( DD_Scheduler            , "DD Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
-	xTaskCreate( MonitorTask             , "Monitoring Task"                , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
+	xTaskCreate( DD_Scheduler , "DD Scheduler Task" , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_SCHEDULER , NULL);
+	xTaskCreate( MonitorTask  , "Monitoring Task"   , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MONITOR   , NULL);
 
 } // end DD_Scheduler_Init
 
 
 /*
- * This primitive, creates a deadline driven scheduled task. It follows the steps outlined below
- * 1. Opens a queue
- * 2. Creates the task specified and assigns it the minimum priority possible
- * 3. Composes a create_task_message and sends it to the DD-scheduler
- * 4. Waits for a reply at the queue it created above
- * 5. Once the reply is received, it obtains it
- * 6. Destroys the queue
- * 7. Returns to the invoking task
+ * DD_Task_Create: creates a deadline driven scheduled task. It follows the steps outlined below
+ * 1. Check that the DD_TaskHandle_t isn't null
+ * 2. Create the task given the parameters
+ * 3. Ensure the task was successfully created.
+ * 4. Suspend the task until priority is assigned.
+ * 5. Creates a message structure
+ * 6. Send the message to the DD_Scheduler on its queue
+ *   -> Let the DD_Scheduler assigned the priority
+ * 7. Wait for the response from the DD_Scheduler that priority is assigned.
+ * 8. Resume the newly created task.
+ *
+ * Params: DD_TaskHandle_t create_task
+ *  -> Holds all the task parameters required for task creation.
+ *  -> Everything but the task_handle must be set before calling this function.
  */
 uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
 {
-	// Verify that the input data isn't empty
+
+	// STEP 1: Verify that the input data isn't empty
 	if( create_task == NULL )
 	{
 		printf("ERROR: Sent NULL DD_TaskHandle_t to DD_Task_Create! \n");
 		return 0;
 	}
 
+	// STEP 2: Create the task in FreeRTOS with the parameters passed in, and minimum priority.
+	xTaskCreate( create_task->task_function ,   // TaskFunction_t Function             -> the task that will run. Either a predefined periodic or aperiodic task.
+			     create_task->task_name ,       // const char * const pcName           -> Name given to the task, limited in character length by configMAX_TASK_NAME_LEN in FreeRTOSConfig.h
+				 configMINIMAL_STACK_SIZE ,     // configSTACK_DEPTH_TYPE usStackDepth -> Set to configMINIMAL_STACK_SIZE
+				 NULL ,                         // void *pvParameters                  -> Set to NULL, have no need for them. (Maybe could pass the DD_TaskHandle_t if wanted?)
+				 DD_TASK_PRIORITY_MINIMUM ,     // UBaseType_t uxPriority              -> Priority set to minimum, assigned by DD_scheduler
+				 &(create_task->task_handle) ); // TaskHandle_t *pxCreatedTask         -> Used to pass a handle to the created task out of the xTaskCreate() function
 
-	// Task create: xTaskCreate( TaskFunction_t Function ,  const char * const pcName, configMINIMAL_STACK_SIZE ,NULL ,UBaseType_t uxPriority , TaskHandle_t *pxCreatedTask);
-	xTaskCreate( create_task->task_function , create_task->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(create_task->task_handle));
-
+	// STEP 3: Check that the task was actually created.
 	if( create_task->task_handle == NULL )
 	{
 		printf("ERROR: DD_Task_Create's xTaskCreate didn't make a pointer! \n");
 		return 0;
 	}
 
-	// Create the message structure, with the DD_TaskHandle_t in the data field for the linked list element.
-	DD_Message_t create_task_message = { DD_Message_Create , xTaskGetCurrentTaskHandle() , create_task };
+	// STEP 4: Might want to suspend the task here, and resume it after the scheduler replies.
+	vTaskSuspend( create_task->task_handle );
 
-	// Send the message to the DD_Scheduler queue
-	if( DD_Scheduler_Message_Queue != NULL)
+	// STEP 5: Create the message structure, with the DD_TaskHandle_t in the data field for the linked list element.
+	DD_Message_t create_task_message = { DD_Message_Create ,            // Message Type / Request is to create a task
+			                             xTaskGetCurrentTaskHandle() ,  // Message sender is the task generator, need to send this for task notification
+										 create_task };                 // DD_TaskHandle_t is a pointer to the task data, holds the task handle and deadline for the new task.
+
+	// STEP 6: (SCHEDULER REQUEST SEND) Send the message to the DD_Scheduler queue
+	if( DD_Scheduler_Message_Queue != NULL) // Check that the queue exists
 	{
-		if( xQueueSend(DD_Scheduler_Message_Queue, &create_task_message, (TickType_t) portMAX_DELAY ) != pdPASS )
+		if( xQueueSend(DD_Scheduler_Message_Queue, &create_task_message, (TickType_t) portMAX_DELAY ) != pdPASS ) // ensure the message was sent
 		{
 			printf("ERROR: DD_Task_Create couldn't send request on DD_Scheduler_Message_Queue!\n");
 			return 0;
 		}
 	}
-	else
+	else // Queue doesn't exist, error out, entire system will fail.
 	{
 		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
 		return 0;
 	}
 
-	// Wait until the Scheduler replies.
-    ulTaskNotifyTake( pdTRUE, (TickType_t) portMAX_DELAY ); /* Block indefinitely. */
+	// STEP 7: (SCHEDULER RECEIVE) Wait until the Scheduler replies.
+    ulTaskNotifyTake( pdTRUE,          /* Clear the notification value before exiting. */
+    		          portMAX_DELAY ); /* Block indefinitely. */
 
-	return 0;
+    // STEP 8: Scheduler replied, priority assigned, start the task
+    vTaskResume( create_task->task_handle );
+
+    // Return with 1 for success.
+	return 1;
 } // end DD_Task_Create
 
-
+/*
+ * DD_Task_Delete: deletes a deadline driven scheduled task. It follows the steps outlined below
+ * 1. Check that the TaskHandle_t isn't null
+ * 2. Creates a message structure
+ * 3. Send the message to the DD_Scheduler on its queue
+ * 4. Wait for the response from the DD_Scheduler that priority is assigned.
+ * 5. Delete the task.
+ *
+ * Params: TaskHandle_t delete_task
+ *  -> Only need the task handle.
+ *  -> DD_Scheduler will find the task handle in the active list if it exists
+ *      -> Could be in overdue list, and so task wont be deleted until overdue list cleans up.
+ *      -> However, will still perform vTaskDelete
+ */
 uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 {
-	// Verify that the input data isn't empty
+	// STEP 1: Verify that the input data isn't empty
 	if( delete_task == NULL )
 	{
 		printf("ERROR: DD_Task_Delete send a NULL TaskHandle_t! \n");
 		return 0;
 	}
 
-	// Create the message structure, only know the sender but no info, but thats all thats required for DD_Scheduler.
-	DD_Message_t delete_task_message = { DD_Message_Delete , delete_task , NULL };
+	// Step 2: Create the message structure, only know the sender but no info, but thats all thats required for DD_Scheduler.
+	DD_Message_t delete_task_message = { DD_Message_Delete , // Message Type / Request is to delete a task
+										 delete_task ,       // Sender is the task to be deleted itself, so send it for task notification
+										 NULL };             // No need for additional data, DD_Scheduler will grab it
 
-	// SCHEDULER REQUEST SEND: Send the message to the DD_Scheduler queue
+	// Step 3: (SCHEDULER REQUEST SEND) Send the message to the DD_Scheduler queue
 	if( DD_Scheduler_Message_Queue != NULL)
 	{
 		if( xQueueSend(DD_Scheduler_Message_Queue, &delete_task_message, (TickType_t) portMAX_DELAY ) != pdPASS )
@@ -300,18 +339,19 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 			return 0;
 		}
 	}
-	else
+	else // Queue doesn't exist, error out, entire system will fail.
 	{
 		printf("ERROR: DD_Scheduler_Message_Queue is NULL.\n");
 		return 0;
 	}
 
-	// SCHEDULER RECEIVE: Wait until the Scheduler replies.
+	// Step 4: (SCHEDULER RECEIVE) Wait until the Scheduler replies.
     ulTaskNotifyTake( pdTRUE, (TickType_t) portMAX_DELAY ); /* Block indefinitely. */
 
-	// Deletes the task after DD_Scheduler has removed it from the active list and wiped its memory.
+	// Step 5: Deletes the task after DD_Scheduler has removed it from the active list and wiped its memory.
 	vTaskDelete( delete_task );
 
+	// Return with 1 for success.
 	return 1;
 } // end DD_Task_Delete
 
