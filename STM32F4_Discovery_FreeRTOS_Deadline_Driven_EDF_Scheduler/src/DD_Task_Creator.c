@@ -72,7 +72,7 @@ void EXTI0_IRQHandler(void) {
     	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     	/* Notify the task that the transmission is complete. */
-    	vTaskNotifyGiveFromISR( AperiodicTask, &xHigherPriorityTaskWoken );
+    	vTaskNotifyGiveFromISR( Aperiodic_task_gen_handle_1 , &xHigherPriorityTaskWoken );
 
         /* Clear interrupt flag (Want to do this as late as possible to avoid triggering the IRQ in the IRQ) */
         EXTI_ClearITPendingBit(EXTI_Line0);

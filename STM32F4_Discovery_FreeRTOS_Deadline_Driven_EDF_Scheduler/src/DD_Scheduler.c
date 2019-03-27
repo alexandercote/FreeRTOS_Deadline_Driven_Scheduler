@@ -143,6 +143,11 @@ void DD_Scheduler( void *pvParameters )
 			// Clear overdue tasks
 			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
 
+			// Remove items from overdue list, only keep 10 most recent overdue.
+			while( overdue_list->list_length > 10 )
+			{
+				DD_TaskList_Remove( overdue_list.list_head , &overdue_list );
+			}
 		} // end queue receive
 	} // end while
 } // end DD_Scheduler

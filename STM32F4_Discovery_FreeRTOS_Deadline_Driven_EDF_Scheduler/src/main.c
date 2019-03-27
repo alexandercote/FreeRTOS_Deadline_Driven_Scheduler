@@ -85,7 +85,9 @@ int main(void)
 
 	DD_Scheduler_Init();
 
-	xTaskCreate( PeriodicTaskGenerator_1 , "Generator Task"                 , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , NULL);
+	xTaskCreate( PeriodicTaskGenerator_1 , "PeriodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Periodic_task_gen_handle_1);
+	xTaskCreate( AperiodicTaskGenerator , "AperiodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Aperiodic_task_gen_handle_1);
+
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();

@@ -12,6 +12,9 @@
 #include "includes.h"
 #include "DD_Scheduler.h"
 
+TaskHandle_t Periodic_task_gen_handle_1;
+TaskHandle_t Aperiodic_task_gen_handle_1;
+
 void PeriodicTask ( void *pvParameters );
 void PeriodicTaskGenerator_1( void *pvParameters );
 void AperiodicTask( void *pvParameters );
