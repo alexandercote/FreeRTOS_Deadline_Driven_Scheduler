@@ -67,15 +67,15 @@
 
     1 tab == 4 spaces!
 */
+
 #include "includes.h"
-#include "DD_Task_Creator.h"
-#include "FreeRTOSHooks.h"
+
 #include "DD_Scheduler.h"
+#include "DD_Task_Creator.h"
 
 
 // Initialization declaration
 void HardwareInit( void );
-void List_Tests( void );
 
 /*-----------------------------------------------------------*/
 

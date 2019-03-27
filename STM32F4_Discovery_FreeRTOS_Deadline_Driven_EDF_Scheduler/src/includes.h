@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "stm32f4_discovery.h"
 #include <string.h>
 
 /* Kernel includes. */
@@ -24,11 +23,26 @@
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
 
+/* STM / RTOS includes. */
+#include "stm32f4_discovery.h"
+#include "FreeRTOSHooks.h"
+
+
 // Hardware defines
 #define amber_led	LED3
 #define green_led	LED4
 #define red_led		LED5
 #define blue_led	LED6
+
+// Debug mode printing.
+
+# define DEBUG_MODE (1)
+
+# if DEBUG_MODE == 1
+	# define debugprintf printf
+# elif
+	# define debugprintf
+# endif
 
 
 #endif /* INCLUDES_H_ */
