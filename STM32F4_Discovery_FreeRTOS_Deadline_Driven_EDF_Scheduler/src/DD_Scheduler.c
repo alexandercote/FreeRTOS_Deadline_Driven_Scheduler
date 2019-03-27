@@ -92,6 +92,10 @@ void DD_Scheduler( void *pvParameters )
 					break;
 
 				case(DD_Message_Delete):
+
+					// if the task is aperiodic, and DD_Task_Delete was called first, need to delete timer.
+						// Deal with this in DD_TaskList_Remove
+
 					// Remove element from list, and free its memory, and if its aperiodic, stops the timer
 					DD_TaskList_Remove( received_message.message_sender , &active_list );
 					// NOTE: If the task was moved to the overdue list, it wont have been deleted.

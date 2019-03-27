@@ -89,6 +89,7 @@ void AperiodicTask ( void *pvParameters )
 	while(1)
 	{
 		STM_EVAL_LEDToggle(red_led);
+		vTaskDelay(200);
 		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
 		DD_Task_Delete( my_task );
 	}
