@@ -16,18 +16,18 @@
 // Message types
 typedef enum DD_Message_Type_t
 {
-	DD_Message_Create,
-	DD_Message_Delete,
-	DD_Message_ActiveList,
-	DD_Message_OverdueList
+    DD_Message_Create,
+    DD_Message_Delete,
+    DD_Message_ActiveList,
+    DD_Message_OverdueList
 }DD_Message_Type_t;
 
 // Message structure
 typedef struct DD_Message_t
 {
-	DD_Message_Type_t message_type;
-	TaskHandle_t      message_sender; // Maybe send it a DD_TaskHandle_t? -> cant since wont have it for delete.
-	void*             message_data;
+    DD_Message_Type_t message_type;
+    TaskHandle_t      message_sender; // Maybe send it a DD_TaskHandle_t? -> cant since wont have it for delete.
+    void*             message_data;
 }DD_Message_t;
 
 

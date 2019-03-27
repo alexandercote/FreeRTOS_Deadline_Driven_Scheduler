@@ -26,23 +26,23 @@
 
 typedef enum DD_Task_Type_t
 {
-	DD_TT_Undefined,
-	DD_TT_Periodic,
-	DD_TT_Aperiodic
+    DD_TT_Undefined,
+    DD_TT_Periodic,
+    DD_TT_Aperiodic
 }DD_Task_Type_t;
 
 
 typedef struct DD_Task_t
 {
-	TaskHandle_t      task_handle;
-	TaskFunction_t    task_function;
-	const char *      task_name;
-	DD_Task_Type_t    task_type;
-	xTimerHandle      aperiodic_timer;
-	TickType_t        creation_time;
-	TickType_t        deadline;
-	struct DD_Task_t* next_cell;
-	struct DD_Task_t* previous_cell;
+    TaskHandle_t      task_handle;
+    TaskFunction_t    task_function;
+    const char *      task_name;
+    DD_Task_Type_t    task_type;
+    xTimerHandle      aperiodic_timer;
+    TickType_t        creation_time;
+    TickType_t        deadline;
+    struct DD_Task_t* next_cell;
+    struct DD_Task_t* previous_cell;
 } DD_Task_t;
 
 typedef DD_Task_t* DD_TaskHandle_t;
@@ -52,9 +52,9 @@ typedef DD_Task_t* DD_TaskHandle_t;
 
 typedef struct DD_TaskList_t
 {
-	uint32_t        list_length;
-	DD_TaskHandle_t list_head;
-	DD_TaskHandle_t list_tail;
+    uint32_t        list_length;
+    DD_TaskHandle_t list_head;
+    DD_TaskHandle_t list_tail;
 } DD_TaskList_t;
 
 typedef DD_TaskList_t* DD_TaskListHandle_t;

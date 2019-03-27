@@ -81,17 +81,17 @@ void HardwareInit( void );
 
 int main(void)
 {
-	HardwareInit(); // Initialize the GPIO and ADC
+    HardwareInit(); // Initialize the GPIO and ADC
 
-	DD_Scheduler_Init();
+    DD_Scheduler_Init();
 
-	xTaskCreate( PeriodicTaskGenerator_1 , "PeriodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Periodic_task_gen_handle_1);
-	xTaskCreate( AperiodicTaskGenerator , "AperiodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Aperiodic_task_gen_handle_1);
+    xTaskCreate( PeriodicTaskGenerator_1 , "PeriodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Periodic_task_gen_handle_1);
+    xTaskCreate( AperiodicTaskGenerator , "AperiodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Aperiodic_task_gen_handle_1);
 
-	/* Start the tasks and timer running. */
-	vTaskStartScheduler();
+    /* Start the tasks and timer running. */
+    vTaskStartScheduler();
 
-	return 0;
+    return 0;
 } // end main
 /*-----------------------------------------------------------*/
 
@@ -99,19 +99,19 @@ int main(void)
 void HardwareInit()
 { // Initializes GPIO and ADC
 
-	/* Ensure all priority bits are assigned as preemption priority bits.
-	http://www.freertos.org/RTOS-Cortex-M3-M4.html */
-	NVIC_SetPriorityGrouping( 0 );
+    /* Ensure all priority bits are assigned as preemption priority bits.
+    http://www.freertos.org/RTOS-Cortex-M3-M4.html */
+    NVIC_SetPriorityGrouping( 0 );
 
-	/* Initialize LEDs */
-	STM_EVAL_LEDInit(amber_led);
-	STM_EVAL_LEDInit(green_led);
-	STM_EVAL_LEDInit(red_led);
-	STM_EVAL_LEDInit(blue_led);
+    /* Initialize LEDs */
+    STM_EVAL_LEDInit(amber_led);
+    STM_EVAL_LEDInit(green_led);
+    STM_EVAL_LEDInit(red_led);
+    STM_EVAL_LEDInit(blue_led);
 
-	// Initialize the pushbutton (either GPIO: BUTTON_MODE_GPIO or external interrupt: BUTTON_MODE_EXTI)
-	STM_EVAL_PBInit( BUTTON_USER, BUTTON_MODE_EXTI );
-	NVIC_SetPriority( USER_BUTTON_EXTI_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1 ); // Must be above configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
+    // Initialize the pushbutton (either GPIO: BUTTON_MODE_GPIO or external interrupt: BUTTON_MODE_EXTI)
+    STM_EVAL_PBInit( BUTTON_USER, BUTTON_MODE_EXTI );
+    NVIC_SetPriority( USER_BUTTON_EXTI_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1 ); // Must be above configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
 
 
 } // end HardwareInit

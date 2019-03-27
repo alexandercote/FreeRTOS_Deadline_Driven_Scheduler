@@ -29,19 +29,19 @@
 
 
 // Hardware defines
-#define amber_led	LED3
-#define green_led	LED4
-#define red_led		LED5
-#define blue_led	LED6
+#define amber_led   LED3
+#define green_led   LED4
+#define red_led     LED5
+#define blue_led    LED6
 
 // Debug mode printing.
 
 # define DEBUG_MODE (1)
 
 # if DEBUG_MODE == 1
-	# define debugprintf printf
+    # define debugprintf printf
 # elif
-	# define debugprintf
+    # define debugprintf
 # endif
 
 
