@@ -181,16 +181,31 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 				iterator->aperiodic_timer = NULL;                // Clear the timer in the DD_TaskHandle_t
 			}
 
-			DD_TaskHandle_t prev_task = iterator->previous_cell;
-			DD_TaskHandle_t next_task = iterator->next_cell;
-
-			if( prev_task == NULL ) // OR if(task_to_remove == remove_list->list_head)
-				remove_list->list_head = NULL;
-			if( next_task == NULL ) // OR if(task_to_remove == remove_list->list_tail)
-				remove_list->list_tail = NULL;
-
-			prev_task->next_cell     = next_task;
-			next_task->previous_cell = prev_task;
+			// Removal management, could probably make this simpler, but this is explicit for each edge case.
+			if( remove_list->list_length == 1 ) // Know we are removing the head and tail of the list.
+			{
+				remove_list->list_head = NULL;   // No more items in the list, head is null.
+				remove_list->list_tail = NULL;   // No more items in the list, tail is null.
+			}
+			else if( task_to_remove == remove_list->list_head->task_handle ) //Removing the head of the list.
+			{
+				remove_list->list_head = iterator->next_cell;      // Make the new head of the list the next item in line
+				iterator->next_cell->previous_cell = NULL;         // Ensure the next item in the list points to NULL for anything before it.
+			}
+			else if( task_to_remove == remove_list->list_tail->task_handle ) //Removing the tail of the list
+			{
+				remove_list->list_head = iterator->previous_cell;  // Make the new tail of the list the previous item in line
+				iterator->previous_cell->next_cell = NULL;         // Ensure the previous item in the list points to NULL for anything after it.
+			}
+			else // Removing from middle of the list
+			{
+				iterator->previous_cell->next_cell = iterator->next_cell;
+				iterator->next_cell->previous_cell = iterator->previous_cell;
+				//DD_TaskHandle_t prev_task = iterator->previous_cell;
+				//DD_TaskHandle_t next_task = iterator->next_cell;
+				//prev_task->next_cell     = next_task;
+				//next_task->previous_cell = prev_task;
+			}
 
 			(remove_list->list_length)--; // decrement the list size
 

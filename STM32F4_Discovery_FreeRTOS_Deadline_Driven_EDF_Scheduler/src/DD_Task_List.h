@@ -15,9 +15,10 @@
 # define DD_TASK_PRIORITY_IDLE           (0)
 # define DD_TASK_PRIORITY_MINIMUM        (1)
 # define DD_TASK_PRIORITY_MONITOR        (2)
-# define DD_TASK_PRIORITY_GENERATOR      (3)
-# define DD_TASK_PRIORITY_EXECUTION_BASE (4)
-# define DD_TASK_PRIORITY_SCHEDULER      (configMAX_PRIORITIES) // set to the highest priority, defined in FreeRTOSConfig.h
+# define DD_TASK_PRIORITY_EXECUTION_BASE (3)
+# define DD_TASK_PRIORITY_GENERATOR      ( DD_TIMER_PRIORITY - 1 )
+# define DD_TIMER_PRIORITY               ( DD_TASK_PRIORITY_SCHEDULER - 1 )
+# define DD_TASK_PRIORITY_SCHEDULER      ( configMAX_PRIORITIES ) // set to the highest priority, defined in FreeRTOSConfig.h
 
 # define DD_TASK_RANGE (DD_TASK_PRIORITY_SCHEDULER - 1 - DD_TASK_PRIORITY_EXECUTION_BASE) // Number of tasks allowed
 

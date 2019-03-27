@@ -64,7 +64,7 @@ void EXTI0_IRQHandler(void) {
     if (EXTI_GetITStatus(EXTI_Line0) != RESET)
     {
     	// Switch an LED
-    	STM_EVAL_LEDToggle(green_led);
+    	//STM_EVAL_LEDToggle(green_led);
 
     	// The rest of this stuff is interrupt management.
 
@@ -88,6 +88,7 @@ void AperiodicTask ( void *pvParameters )
 {
 	while(1)
 	{
+		// Switch an LED
 		STM_EVAL_LEDToggle(red_led);
 		vTaskDelay(200);
 		TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
