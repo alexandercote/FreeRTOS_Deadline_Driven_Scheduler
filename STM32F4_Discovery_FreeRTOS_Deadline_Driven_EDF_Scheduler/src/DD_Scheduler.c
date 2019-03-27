@@ -37,6 +37,7 @@ static QueueHandle_t DD_Monitor_Message_Queue;
 void DD_Scheduler( void *pvParameters )
 {
 	DD_Message_t received_message;
+	DD_TaskHandle_t DD_task_handle = NULL;
 
 	while(1)
 	{
@@ -47,14 +48,35 @@ void DD_Scheduler( void *pvParameters )
 			{
 				case(DD_Message_Create):
 					// Need to pass in the DD_TaskHandle_t and the list to work on.
-				    DD_TaskList_Deadline_Insert( received_message.message_data , &active_list );
+				    DD_task_handle = (DD_TaskHandle_t)received_message.message_data;
+				    DD_TaskList_Deadline_Insert( DD_task_handle , &active_list );
+
+					// If its a periodic task, create a timer to callback on the deadline
+					if( DD_task_handle->task_type == DD_TT_Aperiodic)
+					{
+						// Timer name
+						char timer_name[50] = "Timer_";
+						strcat(timer_name, DD_task_handle->task_name );
+
+						TickType_t timer_period = DD_task_handle->deadline - xTaskGetTickCount();
+
+						// TimerHandle_t xTimerCreate ( const char * const pcTimerName, const TickType_t xTimerPeriod, const UBaseType_t uxAutoReload, void * const pvTimerID, TimerCallbackFunction_t pxCallbackFunction );
+						DD_task_handle->aperiodic_timer = xTimerCreate( timer_name ,                   // Append "Timer_" to the task name
+								                                        timer_period ,                 // Timer period set to the remaining timer before deadline
+																		pdFALSE ,                      // Auto-reload disabled
+																		(void*)DD_task_handle ,        // Pass the DD_TaskHandle_t so that it can be used in the timercallback.
+																		DD_Aperiodic_Timer_Callback );
+
+						// Start the timer
+						xTimerStart( DD_task_handle->aperiodic_timer, 0 );
+					}
 
 					// Reply to message.
 					xTaskNotifyGive( received_message.message_sender );
-
 					break;
+
 				case(DD_Message_Delete):
-					// Remove element from list, and free its memory.
+					// Remove element from list, and free its memory, and if its aperiodic, stops the timer
 					DD_TaskList_Remove( received_message.message_sender , &active_list );
 					// NOTE: If the task was moved to the overdue list, it wont have been deleted.
 				    //       The memory stored for DD_Task_t will still exist for that task.
@@ -62,8 +84,8 @@ void DD_Scheduler( void *pvParameters )
 
 					// Reply to message.
 					xTaskNotifyGive( received_message.message_sender );
-
 					break;
+
 				case(DD_Message_ActiveList):
 					// Store the string in the message data, which will be sent back to reply
 					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &active_list );
@@ -88,8 +110,8 @@ void DD_Scheduler( void *pvParameters )
 						printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
 						break;
 					}
-
 					break;
+
 				case(DD_Message_OverdueList):
 					// Store the string in the message data, which will be sent back to reply
 					received_message.message_data = (void*)DD_TaskList_Formatted_Data( &overdue_list );
@@ -114,11 +136,8 @@ void DD_Scheduler( void *pvParameters )
 						printf("ERROR: DD_Monitor_Message_Queue is NULL.\n");
 						break;
 					}
-
-
-					xQueueSend( DD_Monitor_Message_Queue, &received_message, (TickType_t) portMAX_DELAY );
-
 					break;
+
 			} // end switch
 
 			// Clear overdue tasks
@@ -129,6 +148,20 @@ void DD_Scheduler( void *pvParameters )
 } // end DD_Scheduler
 
 
+// This callback occurs when the deadline for the aperiodic task completes.
+// Need to remove the aperiodic task, since DD_Task_Delete
+static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
+{
+	/* Need to get access to the DD_TaskHandle_t given the xTimer.
+	 * Could search through the lists for the aperiodic_timer field in the DD_TaskHandle_t.
+	 * However, we stored the DD_TaskHandle_t as the timer ID. Pointers are amazing.
+	 */
+	DD_TaskHandle_t aperiodic_task = (DD_TaskHandle_t)pvTimerGetTimerID( xTimer );
+
+
+
+
+}
 
 
 

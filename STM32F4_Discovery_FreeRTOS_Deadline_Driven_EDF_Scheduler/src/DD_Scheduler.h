@@ -34,6 +34,7 @@ typedef struct DD_Message_t
 /*--------------------------- DD Scheduler --------------------------------*/
 
 void DD_Scheduler( void *pvParameters );
+static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer );
 
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 

@@ -13,14 +13,15 @@ DD_TaskHandle_t DD_Task_Allocate()
 {
 	DD_TaskHandle_t newtask = (DD_TaskHandle_t)pvPortMalloc(sizeof(DD_Task_t));
 
-	newtask->task_handle   = NULL;
-	newtask->task_function = NULL;
-	newtask->task_name     = "";
-	newtask->task_type     = DD_TT_Undefined;
-	newtask->creation_time = 0;
-	newtask->deadline      = 0;
-	newtask->next_cell     = NULL;
-	newtask->previous_cell = NULL;
+	newtask->task_handle     = NULL;
+	newtask->task_function   = NULL;
+	newtask->task_name       = "";
+	newtask->task_type       = DD_TT_Undefined;
+	newtask->aperiodic_timer = NULL;
+	newtask->creation_time   = 0;
+	newtask->deadline        = 0;
+	newtask->next_cell       = NULL;
+	newtask->previous_cell   = NULL;
 
 	return newtask;
 }
@@ -35,14 +36,15 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 	}
 
 	// Reset the data before freeing - some errors can occur if not done
-	task_to_remove->task_handle   = NULL;
-	task_to_remove->task_function = NULL;
-	task_to_remove->task_name     = "";
-	task_to_remove->task_type     = DD_TT_Undefined;
-	task_to_remove->creation_time = 0;
-	task_to_remove->deadline      = 0;
-	task_to_remove->next_cell     = NULL;
-	task_to_remove->previous_cell = NULL;
+	task_to_remove->task_handle      = NULL;
+	task_to_remove->task_function    = NULL;
+	task_to_remove->task_name        = "";
+	task_to_remove->task_type        = DD_TT_Undefined;
+	task_to_remove->aperiodic_timer  = NULL;
+	task_to_remove->creation_time    = 0;
+	task_to_remove->deadline         = 0;
+	task_to_remove->next_cell        = NULL;
+	task_to_remove->previous_cell    = NULL;
 
 	// free the memory used by the task
 	vPortFree((void*)task_to_remove);

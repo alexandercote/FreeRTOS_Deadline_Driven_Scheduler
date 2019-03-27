@@ -37,6 +37,7 @@ typedef struct DD_Task_t
 	TaskFunction_t    task_function;
 	const char *      task_name;
 	DD_Task_Type_t    task_type;
+	xTimerHandle      aperiodic_timer;
 	TickType_t        creation_time;
 	TickType_t        deadline;
 	struct DD_Task_t* next_cell;

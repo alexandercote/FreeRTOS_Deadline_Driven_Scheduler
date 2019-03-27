@@ -68,9 +68,9 @@
     1 tab == 4 spaces!
 */
 
+#include <DD_Task_Creator.h>
 #include "FreeRTOSHooks.h"
 #include "DD_Scheduler.h"
-#include "Periodic_Task_Creator.h"
 
 
 // Initialization declaration
@@ -93,62 +93,6 @@ int main(void)
 	return 0;
 } // end main
 /*-----------------------------------------------------------*/
-
-
-
-// Tests the insert and delete functions.
-// Attempts to moc the DD_Scheduler functionality.
-void List_Tests()
-{
-	DD_TaskList_t active_list;
-	DD_TaskList_Init( &active_list );
-
-    DD_Scheduler_Init();
-
-	DD_TaskHandle_t task_1 = DD_Task_Allocate();
-	task_1->task_function = PeriodicTask;
-	task_1->task_name     = "task uno";
-	task_1->deadline      = (TickType_t) 300;
-	xTaskCreate( task_1->task_function , task_1->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_1->task_handle));
-	DD_TaskHandle_t task_2 = DD_Task_Allocate();
-	task_2->task_function = PeriodicTask;
-	task_2->task_name     = "task dos";
-	task_2->deadline      = (TickType_t) 200;
-	xTaskCreate( task_2->task_function , task_2->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_2->task_handle));
-	DD_TaskHandle_t task_3 = DD_Task_Allocate();
-	task_3->task_function = PeriodicTask;
-	task_3->task_name     = "task tres";
-	task_3->deadline      = (TickType_t) 100;
-	xTaskCreate( task_3->task_function , task_3->task_name , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_MINIMUM , &(task_3->task_handle));
-
-	/* Start the tasks and timer running. */
-	//vTaskStartScheduler();
-
-    DD_TaskList_Deadline_Insert( task_1 , &active_list );
-    DD_TaskList_Deadline_Insert( task_2 , &active_list );
-    DD_TaskList_Deadline_Insert( task_3 , &active_list );
-
-    vTaskStartScheduler();
-
-
-
-    DD_TaskList_Remove( task_1->task_handle , &active_list );
-    vTaskDelete( task_1->task_handle );
-    DD_Task_Free(task_1);
-    // Attempt to use task_1 again, should fail.
-
-
-    DD_TaskList_Remove( task_2->task_handle , &active_list );
-    vTaskDelete( task_2->task_handle );
-    DD_Task_Free(task_2);
-    DD_Task_Free(task_3); // check removal safety verification
-    DD_TaskList_Remove( task_3->task_handle , &active_list );
-    vTaskDelete( task_3->task_handle );
-    DD_Task_Free(task_3);
-
-	return;
-}
-
 
 
 void HardwareInit()
