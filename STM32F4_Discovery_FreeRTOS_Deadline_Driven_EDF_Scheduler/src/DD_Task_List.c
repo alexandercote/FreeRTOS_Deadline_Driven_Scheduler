@@ -67,21 +67,22 @@ void DD_TaskList_Init( DD_TaskListHandle_t init_list )
 /*--------------------------- Task List Access Functions --------------------------------*/
 
 //DD_TaskList_Basic_Insert -> inserts element at the end
-
 void DD_TaskList_Basic_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHandle_t insert_list )
 {
 	if( insert_list->list_length == 0 )
 		{
-			insert_list->list_length = 1;
+			insert_list->list_length = 1;                  // first item in list, length is 1.
 			insert_list->list_head = task_to_insert;
 			insert_list->list_tail = task_to_insert;
 		}
 	else
 	{
 		DD_TaskHandle_t temp_swap = insert_list->list_tail; // get the current list tail
-		insert_list->list_tail        = task_to_insert;
-		temp_swap->next_cell          = task_to_insert;
-		task_to_insert->previous_cell = temp_swap;
+		insert_list->list_tail        = task_to_insert;     // make the new tail the task to insert
+		temp_swap->next_cell          = task_to_insert;     // set the old tail as the new task's previous cell
+		task_to_insert->previous_cell = temp_swap;          // set the old tail's next cell as the new task
+
+		(insert_list->list_length)++;                       // increment the list size
 	}
 }
 
@@ -260,10 +261,11 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
 
 
 			// TASK MANAGEMENT
-			// decrement the priority of all overdue tasks to idle, and then suspend them.
-			vTaskPrioritySet( iterator->task_handle , DD_TASK_PRIORITY_IDLE );
+			// Suspend the task and delete it
 			vTaskSuspend( iterator->task_handle );
-			// Might want to kill them too?
+			vTaskDelete( iterator->task_handle );
+			// When the task is removed from the overdue list, it will clear the DD_Task_t data.
+
 		}
 		else // EDF active list format - no more deadlines past.
 		{
@@ -292,7 +294,7 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 		sprintf( iteration_buffer, "Task Name = %s, Deadline = %u \n", iterator->task_name, (unsigned int) iterator->deadline ); // need typecast to unsigned int to avoid warning.
 		strcat( outputbuffer, iteration_buffer );
 
-		iterator = iterator->next_cell;
+		iterator = iterator->next_cell;         // Go to the next element in the list
 	}
 	return outputbuffer;
 }

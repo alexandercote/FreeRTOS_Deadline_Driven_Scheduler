@@ -67,8 +67,8 @@
 
     1 tab == 4 spaces!
 */
-
-#include <DD_Task_Creator.h>
+#include "includes.h"
+#include "DD_Task_Creator.h"
 #include "FreeRTOSHooks.h"
 #include "DD_Scheduler.h"
 
@@ -87,7 +87,6 @@ int main(void)
 
 	xTaskCreate( PeriodicTaskGenerator_1 , "PeriodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Periodic_task_gen_handle_1);
 	xTaskCreate( AperiodicTaskGenerator , "AperiodGenTask1"  , configMINIMAL_STACK_SIZE , NULL , DD_TASK_PRIORITY_GENERATOR , &Aperiodic_task_gen_handle_1);
-
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();

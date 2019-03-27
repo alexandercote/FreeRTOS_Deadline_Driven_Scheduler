@@ -34,13 +34,12 @@ typedef struct DD_Message_t
 /*--------------------------- DD Scheduler --------------------------------*/
 
 void DD_Scheduler( void *pvParameters );
-static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer );
 
 /*--------------------------- DD Scheduler Public Access Functions --------------------------------*/
 
 void DD_Scheduler_Init( void );
 uint32_t DD_Task_Create( DD_TaskHandle_t create_task );
-uint32_t DD_Task_Delete( TaskHandle_t delete_task );
+uint32_t DD_Task_Delete(TaskHandle_t delete_task);
 
 /*--------------------------- DD Scheduler Monitoring Functions --------------------------------*/
 

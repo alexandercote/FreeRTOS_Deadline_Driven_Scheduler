@@ -7,6 +7,7 @@
 
 #include "DD_Scheduler.h"
 
+
 /*--------------------------- DD Scheduler Variables --------------------------------*/
 
 static DD_TaskList_t active_list;
@@ -14,6 +15,11 @@ static DD_TaskList_t overdue_list;
 
 static QueueHandle_t DD_Scheduler_Message_Queue;
 static QueueHandle_t DD_Monitor_Message_Queue;
+
+
+/*--------------------------- DD Scheduler Timer Callback --------------------------------*/
+
+static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer );
 
 
 /*--------------------------- DD Scheduler --------------------------------*/
@@ -43,7 +49,17 @@ void DD_Scheduler( void *pvParameters )
 	{
 		if( xQueueReceive( DD_Scheduler_Message_Queue, (void*)&received_message, (TickType_t) portMAX_DELAY ) == pdTRUE ) // wait until an item is present on the queue.
 		{
-			// going through DD_Message_Type_t enum
+
+			// Step 1: Clear overdue tasks
+			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
+
+			// Step 2: Remove items from overdue list, only keep 10 most recent overdue.
+			while( overdue_list.list_length > 10 )
+			{
+				DD_TaskList_Remove( overdue_list.list_head , &overdue_list );
+			}
+
+			// Step 3: From queue message, get the request, and do stuff accordingly.
 			switch(received_message.message_type)
 			{
 				case(DD_Message_Create):
@@ -140,21 +156,19 @@ void DD_Scheduler( void *pvParameters )
 
 			} // end switch
 
-			// Clear overdue tasks
-			DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
-
-			// Remove items from overdue list, only keep 10 most recent overdue.
-			while( overdue_list->list_length > 10 )
-			{
-				DD_TaskList_Remove( overdue_list.list_head , &overdue_list );
-			}
 		} // end queue receive
 	} // end while
 } // end DD_Scheduler
 
 
-// This callback occurs when the deadline for the aperiodic task completes.
-// Need to remove the aperiodic task, since DD_Task_Delete
+/* This callback occurs when the deadline for the aperiodic task completes.
+ * Need to remove the aperiodic task, since DD_Task_Delete
+ *
+ * Steps:
+ * - Get DD_TaskHandle_t from Timer ID
+ * - Delete timer, clear DD_TaskHandle_t->aperiodic_task for future use
+ * - Suspend Task, Delete Task
+ */
 static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
 {
 	/* Need to get access to the DD_TaskHandle_t given the xTimer.
@@ -163,10 +177,22 @@ static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
 	 */
 	DD_TaskHandle_t aperiodic_task = (DD_TaskHandle_t)pvTimerGetTimerID( xTimer );
 
+	// Clear the local timer variable for the aperiodic_task
+	aperiodic_task->aperiodic_timer = NULL;
 
+	// Delete the task that called this callback (was oneshot, we done with it)
+	xTimerDelete( xTimer, 0 );
 
+	// Stop the task and delete it.
+	// Note: Can't call DD_task_delete or send a message to the scheduler to delete
+	//       since we can't wait for a queue to send in a callback
+	vTaskSuspend( aperiodic_task->task_handle );
+	vTaskDelete( aperiodic_task->task_handle );
 
-}
+	// Need to validate that there wont be a memory leak here.
+	// Should be aperiodic task -> into overdue_list -> remove from overdue list after 10 elements -> DD_Task_Free -> vPortFree
+	// So should be okay.
+} // end DD_Aperiodic_Timer_Callback
 
 
 
