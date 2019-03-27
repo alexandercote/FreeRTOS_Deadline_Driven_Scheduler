@@ -26,7 +26,7 @@ typedef enum DD_Message_Type_t
 typedef struct DD_Message_t
 {
     DD_Message_Type_t message_type;
-    TaskHandle_t      message_sender; // Maybe send it a DD_TaskHandle_t? -> cant since wont have it for delete.
+    TaskHandle_t      message_sender;
     void*             message_data;
 }DD_Message_t;
 

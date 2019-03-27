@@ -107,7 +107,7 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
     DD_TaskHandle_t iterator = insert_list->list_head;                // start from head, closest deadline
     uint32_t itr_priority = uxTaskPriorityGet(iterator->task_handle); // grab the highest priority value
 
-    if(( itr_priority + 1 ) == DD_TASK_PRIORITY_SCHEDULER)              // reached the highest level of priority
+    if(( itr_priority + 1 ) == DD_TASK_PRIORITY_GENERATOR)              // reached the highest level of priority, at generator so thats it.
     {
         printf("ERROR: REACHED LIMIT OF NUMBER OF SCHEDULABLE TASKS! NOT INSERTING TASK");
         return;
@@ -264,6 +264,8 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
     {
         if( iterator->deadline < current_time ) // passed the deadline.
         {
+        	// TODO FIX THE DUMB DELETE
+
             // ACTIVE LIST MANAGEMENT
             DD_TaskHandle_t prev_task = iterator->previous_cell;
             DD_TaskHandle_t next_task = iterator->next_cell;

@@ -47,7 +47,7 @@ void DD_Scheduler( void *pvParameters )
 
     while(1)
     {
-        if( xQueueReceive( DD_Scheduler_Message_Queue, (void*)&received_message, (TickType_t) portMAX_DELAY ) == pdTRUE ) // wait until an item is present on the queue.
+        if( xQueueReceive( DD_Scheduler_Message_Queue, (void*)&received_message, portMAX_DELAY ) == pdTRUE ) // wait until an item is present on the queue.
         {
 
             // Step 1: Clear overdue tasks
@@ -67,7 +67,7 @@ void DD_Scheduler( void *pvParameters )
                     DD_task_handle = (DD_TaskHandle_t)received_message.message_data;
                     DD_TaskList_Deadline_Insert( DD_task_handle , &active_list );
 
-                    // If its a periodic task, create a timer to callback on the deadline
+                    // If its an aperiodic task, create a timer to callback on the deadline
                     if( DD_task_handle->task_type == DD_TT_Aperiodic)
                     {
                         // Timer name
@@ -75,6 +75,8 @@ void DD_Scheduler( void *pvParameters )
                         strcat(timer_name, DD_task_handle->task_name );
 
                         TickType_t timer_period = DD_task_handle->deadline - xTaskGetTickCount();
+
+                        // Check that timer period is positive or something...
 
                         // TimerHandle_t xTimerCreate ( const char * const pcTimerName, const TickType_t xTimerPeriod, const UBaseType_t uxAutoReload, void * const pvTimerID, TimerCallbackFunction_t pxCallbackFunction );
                         DD_task_handle->aperiodic_timer = xTimerCreate( timer_name ,                   // Append "Timer_" to the task name
@@ -279,7 +281,7 @@ uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
     // STEP 6: (SCHEDULER REQUEST SEND) Send the message to the DD_Scheduler queue
     if( DD_Scheduler_Message_Queue != NULL) // Check that the queue exists
     {
-        if( xQueueSend(DD_Scheduler_Message_Queue, &create_task_message, (TickType_t) portMAX_DELAY ) != pdPASS ) // ensure the message was sent
+        if( xQueueSend(DD_Scheduler_Message_Queue, &create_task_message, portMAX_DELAY ) != pdPASS ) // ensure the message was sent
         {
             printf("ERROR: DD_Task_Create couldn't send request on DD_Scheduler_Message_Queue!\n");
             return 0;
@@ -360,16 +362,23 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
 
 /*--------------------------- DD Scheduler Monitoring Functionality --------------------------------*/
 
+/*
+ * MonitorTask: Requests from th DD_Scheduler
+ * 1. Check that the TaskHandle_t isn't null
+
+ *
+ * Params: TaskHandle_t delete_task
+ *  -> Only need the task handle.
+
+ */
 void MonitorTask ( void *pvParameters )
 {
     while(1)
     {
-        uint32_t tasks_count = uxTaskGetNumberOfTasks();
-        printf("Number of tasks = %u \n", (unsigned int)tasks_count);
         DD_Return_Active_List();
         DD_Return_Overdue_List();
 
-        vTaskDelay(1000);
+        vTaskDelay(5000); // Wait for 5 seconds.
     }
 }
 
