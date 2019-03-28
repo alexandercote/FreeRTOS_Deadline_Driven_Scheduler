@@ -16,9 +16,9 @@
 # define DD_TASK_PRIORITY_MINIMUM        (1)
 # define DD_TASK_PRIORITY_MONITOR        (2)
 # define DD_TASK_PRIORITY_EXECUTION_BASE (3)
-# define DD_TASK_PRIORITY_GENERATOR      ( DD_TIMER_PRIORITY - 1 )
-# define DD_TIMER_PRIORITY               ( DD_TASK_PRIORITY_SCHEDULER - 1 )
-# define DD_TASK_PRIORITY_SCHEDULER      ( configMAX_PRIORITIES ) // set to the highest priority, defined in FreeRTOSConfig.h
+# define DD_TASK_PRIORITY_GENERATOR      ( configMAX_PRIORITIES - 3 )
+# define DD_TIMER_PRIORITY               ( configMAX_PRIORITIES - 2 )
+# define DD_TASK_PRIORITY_SCHEDULER      ( configMAX_PRIORITIES - 1 ) // set to the highest priority, defined in FreeRTOSConfig.h
 
 # define DD_TASK_RANGE (DD_TASK_PRIORITY_SCHEDULER - 1 - DD_TASK_PRIORITY_EXECUTION_BASE) // Number of tasks allowed
 
@@ -79,6 +79,9 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 
 // Remove item from list given its DD_TaskHandle_t
 void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list );
+
+// Remove head of list.
+void DD_TaskList_Remove_Head( DD_TaskListHandle_t remove_list );
 
 // Removes overdue tasks from active list, adds them to the overdue list.
 void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskListHandle_t overdue_list );

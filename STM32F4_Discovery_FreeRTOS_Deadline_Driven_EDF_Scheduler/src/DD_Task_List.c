@@ -175,7 +175,7 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 	// Check input parameters are not NULL
 	if( ( task_to_remove == NULL ) || ( remove_list == NULL ) )
 	{
-		printf("ERROR(DD_TaskList_Basic_Insert): one of the parameters passed was NULL.\n");
+		printf("ERROR(DD_TaskList_Remove): one of the parameters passed was NULL.\n");
 		return;
 	}
 
@@ -257,8 +257,51 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
         iterator = iterator->previous_cell;
         vTaskPrioritySet(iterator->task_handle, itr_priority);
     }
+} // end DD_TaskList_Remove
 
-}
+/*
+ * DD_TaskList_Remove_Head: Remove the head of a list based off the task handle TaskHandle_t
+ */
+void DD_TaskList_Remove_Head( DD_TaskListHandle_t remove_list )
+{
+	// Check input parameters are not NULL
+	if( ( remove_list == NULL ) )
+	{
+		printf("ERROR(DD_TaskList_Remove_Head): one of the parameters passed was NULL.\n");
+		return;
+	}
+
+	// Check list isn't empty.
+    if( remove_list->list_length == 0 )
+    {
+        printf("ERROR(DD_TaskList_Remove_Head): trying to remove a task from an empty list...\n");
+        return;
+    }
+
+
+    DD_TaskHandle_t task_head = remove_list->list_head; // start from head, closest deadline
+
+     if( remove_list->list_length == 1 ) // Know we are removing the head and tail of the list.
+     {
+         remove_list->list_head = NULL;   // No more items in the list, head is null.
+         remove_list->list_tail = NULL;   // No more items in the list, tail is null.
+     }
+     else // if( task_to_remove == remove_list->list_head->task_handle ) //Removing the head of the list.
+     {
+         remove_list->list_head = task_head->next_cell;      // Make the new head of the list the next item in line
+         task_head->next_cell->previous_cell = NULL;         // Ensure the next item in the list points to NULL for anything before it.
+     }
+
+     (remove_list->list_length)--; // decrement the list size
+
+     // Clear next/prev cell for removing task
+     task_head->previous_cell = NULL;
+     task_head->next_cell     = NULL;
+
+     // Free DD_Task_t memory
+     DD_Task_Free( task_head );
+
+} // end DD_TaskList_Remove_Head
 
 
 /*
@@ -357,6 +400,13 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
     uint32_t size_of_buffer = ( (configMAX_TASK_NAME_LEN + 50) * (list_size + 1)) ;
     char* outputbuffer = (char*)pvPortMalloc(size_of_buffer); // vPortFree in DD_Return_Active_List/DD_Return_Overdue_List
     outputbuffer[0] = '\0'; // ensure that the new buffer doesn't hold an old string
+
+    if(list_size == 0)
+    {
+    	char buffer[20] = ("List is empty.\n");
+    	strcat( outputbuffer, buffer );
+    	return outputbuffer;
+    }
 
     DD_TaskHandle_t iterator = list->list_head; // start from head
     while( iterator != NULL )

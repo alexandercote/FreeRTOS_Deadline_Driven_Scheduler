@@ -36,11 +36,11 @@
 
 // Debug mode printing.
 
-# define DEBUG_MODE (1)
+# define DEBUG_MODE (0)
 
 # if DEBUG_MODE == 1
     # define debugprintf printf
-# elif
+# else
     # define debugprintf
 # endif
 

@@ -192,7 +192,7 @@ void PeriodicTask_3 ( void *pvParameters )
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
         	{
-				if( current_time % 500 == 0 )
+				if( current_time % 100 == 0 )
 				{
 					STM_EVAL_LEDToggle(blue_led);
 				}

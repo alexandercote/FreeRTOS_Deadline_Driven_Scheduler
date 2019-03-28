@@ -51,7 +51,8 @@ void DD_Scheduler( void *pvParameters )
             // Step 2: Remove items from overdue list, only keep 10 most recent overdue.
             while( overdue_list.list_length > 5 )
             {
-                DD_TaskList_Remove( overdue_list.list_head , &overdue_list );
+            	printf("DD_Scheduler: Removing item from overdue list.\n\n");
+            	DD_TaskList_Remove_Head(  &overdue_list );
             }
 
             // Step 3: From queue message, get the request, and do stuff accordingly.
@@ -406,7 +407,7 @@ uint32_t DD_Return_Active_List( void )
     {
         if( xQueueReceive( DD_Monitor_Message_Queue, &active_list_message, portMAX_DELAY  ) == pdTRUE ) // ensure the message was received
         {
-            printf( "Active Tasks: \n%s", (char*)(active_list_message.message_data)); // Message was received, print out the data.
+            printf( "Active Tasks: \n%s\n", (char*)(active_list_message.message_data)); // Message was received, print out the data.
             vPortFree(active_list_message.message_data);                              // Free the memory used to store the string
             active_list_message.message_data = NULL;                                  // Set the pointer to that memory to NULL;
         }
@@ -453,7 +454,7 @@ uint32_t DD_Return_Overdue_List( void )
     {
         if( xQueueReceive( DD_Monitor_Message_Queue, &overdue_list_message, (TickType_t) portMAX_DELAY  ) == pdTRUE ) // ensure the message was received
         {
-            printf( "Overdue Tasks: \n%s", (char*)(overdue_list_message.message_data));   // Message was received, print out the data.
+            printf( "Overdue Tasks: \n%s\n", (char*)(overdue_list_message.message_data));   // Message was received, print out the data.
             vPortFree(overdue_list_message.message_data);                                 // Free the memory used to store the string
             overdue_list_message.message_data = NULL;                                     // Set the pointer to that memory to NULL;
         }
