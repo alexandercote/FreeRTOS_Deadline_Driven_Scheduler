@@ -18,31 +18,63 @@
 
 /*--------------------------- Periodic Tasks --------------------------------*/
 
-// task function
-void PeriodicTask ( void *pvParameters )
+/*
+ * PeriodicTask_1
+ * Deadline:       5000 ms
+ * Execution Time: 2000 ms
+ *
+ */
+void PeriodicTask_1 ( void *pvParameters )
 {
+	// DD_TaskHandle_t of created task passed in pvParameters
+	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
+
+	TickType_t current_time;
+	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+
     while(1)
     {
+    	// Get the current time
+    	current_time = xTaskGetTickCount();
+    	previous_tick = current_time;
+    	debugprintf("PeriodicTask_1: Current time = %u. \n", (unsigned int)current_time);
+
+    	// Action perfomed by periodic task
         STM_EVAL_LEDToggle(amber_led);
-        vTaskDelay(200);
+
+        // Simulating execution time.
+        while( current_time < (myself->creation_time + execution_time) )
+        {
+        	current_time = xTaskGetTickCount();
+        	if( current_time != previous_tick )
+        	{
+				if( current_time % 100 == 0 )
+				{
+					STM_EVAL_LEDToggle(amber_led);
+				}
+        	}
+        	previous_tick = current_time;
+        }
+
+        STM_EVAL_LEDOff(amber_led);
+        TickType_t relative_deadline = myself->deadline - current_time;
+        vTaskDelayUntil( &current_time, relative_deadline );
+
         TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
         DD_Task_Delete( my_task );
     }
-}
+} // end PeriodicTask_1
 
 
 void PeriodicTaskGenerator_1( void *pvParameters )
 {
     while (1)
     {
-        // Toggle the blue LED to know that the periodic task generator is running
-        //STM_EVAL_LEDToggle(blue_led);
-
-        printf("Generating tasks!\n");
-        TickType_t deadline_gen_1 = 500;
+        TickType_t deadline_gen_1 = 5000;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
-        generated_task->task_function = PeriodicTask;
+        generated_task->task_function = PeriodicTask_1;
         generated_task->task_name     = "PTGen_1_Task";
         generated_task->task_type     = DD_TT_Periodic;
 
@@ -52,9 +84,153 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 500 );
+        vTaskDelay( 5000 );
     }
 }
+
+
+/*
+ * PeriodicTask_1
+ * Deadline:       8000 ms
+ * Execution Time: 2000 ms
+ *
+ */
+void PeriodicTask_2 ( void *pvParameters )
+{
+	// DD_TaskHandle_t of created task passed in pvParameters
+	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
+
+	TickType_t current_time;
+	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+
+    while(1)
+    {
+    	// Get the current time
+    	current_time = xTaskGetTickCount();
+    	previous_tick = current_time;
+    	debugprintf("PeriodicTask_2: Current time = %u. \n", (unsigned int)current_time);
+
+    	// Action perfomed by periodic task
+        STM_EVAL_LEDToggle(green_led);
+
+        // Simulating execution time.
+        while( current_time < (myself->creation_time + execution_time) )
+        {
+        	current_time = xTaskGetTickCount();
+        	if( current_time != previous_tick )
+        	{
+				if( current_time % 250 == 0 )
+				{
+					STM_EVAL_LEDToggle(green_led);
+				}
+        	}
+        	previous_tick = current_time;
+        }
+
+        STM_EVAL_LEDOff(green_led);
+        TickType_t relative_deadline = myself->deadline - current_time;
+        vTaskDelayUntil( &current_time, relative_deadline );
+
+        TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
+        DD_Task_Delete( my_task );
+    }
+} // end PeriodicTask_2
+
+
+void PeriodicTaskGenerator_2( void *pvParameters )
+{
+    while (1)
+    {
+        TickType_t deadline_gen_2 = 8000;
+        DD_TaskHandle_t generated_task = DD_Task_Allocate();
+
+        generated_task->task_function = PeriodicTask_2;
+        generated_task->task_name     = "PTGen_2_Task";
+        generated_task->task_type     = DD_TT_Periodic;
+
+        TickType_t current_time = xTaskGetTickCount();     // fetch the current time to calculate deadline.
+        generated_task->creation_time = current_time;
+        generated_task->deadline      = current_time + deadline_gen_2;
+
+        DD_Task_Create( generated_task );
+
+        vTaskDelay( 8000 );
+    }
+}
+
+
+
+/*
+ * PeriodicTask_3
+ * Deadline:       9000 ms // Wont kill itself at deadline -> force overdue
+ * Execution Time: 1000 ms
+ *
+ */
+void PeriodicTask_3 ( void *pvParameters )
+{
+	// DD_TaskHandle_t of created task passed in pvParameters
+	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
+
+	TickType_t current_time;
+	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t execution_time = 1000 / portTICK_PERIOD_MS;
+
+    while(1)
+    {
+    	// Get the current time
+    	current_time = xTaskGetTickCount();
+    	previous_tick = current_time;
+    	debugprintf("PeriodicTask_3: Current time = %u. \n", (unsigned int)current_time);
+
+    	// Action perfomed by periodic task
+        STM_EVAL_LEDToggle(blue_led);
+
+        // Simulating execution time.
+        while( current_time < (myself->creation_time + execution_time) )
+        {
+        	current_time = xTaskGetTickCount();
+        	if( current_time != previous_tick )
+        	{
+				if( current_time % 500 == 0 )
+				{
+					STM_EVAL_LEDToggle(blue_led);
+				}
+        	}
+        	previous_tick = current_time;
+        }
+        STM_EVAL_LEDOff(blue_led);
+        vTaskDelay( 8500 ); // 9s deadline, 1s execution, 8.5s delay -> force overdue
+
+    }
+} // end PeriodicTask_3
+
+
+void PeriodicTaskGenerator_3( void *pvParameters )
+{
+    while (1)
+    {
+        TickType_t deadline_gen_3 = 9000;
+        DD_TaskHandle_t generated_task = DD_Task_Allocate();
+
+        generated_task->task_function = PeriodicTask_3;
+        generated_task->task_name     = "PTGen_3_Task";
+        generated_task->task_type     = DD_TT_Periodic;
+
+        TickType_t current_time = xTaskGetTickCount();     // fetch the current time to calculate deadline.
+        generated_task->creation_time = current_time;
+        generated_task->deadline      = current_time + deadline_gen_3;
+
+        DD_Task_Create( generated_task );
+
+        vTaskDelay( 9000 );
+    }
+}
+
+
+
+
+
 
 /*--------------------------- Aperiodic Tasks --------------------------------*/
 

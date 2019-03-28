@@ -16,12 +16,18 @@
 /*--------------------------- Generator Task Handles --------------------------------*/
 
 TaskHandle_t Periodic_task_gen_handle_1;
+TaskHandle_t Periodic_task_gen_handle_2;
+TaskHandle_t Periodic_task_gen_handle_3;
 TaskHandle_t Aperiodic_task_gen_handle_1;
 
 /*--------------------------- Periodic Tasks --------------------------------*/
 
-void PeriodicTask ( void *pvParameters );
+void PeriodicTask_1 ( void *pvParameters );
 void PeriodicTaskGenerator_1( void *pvParameters );
+void PeriodicTask_2 ( void *pvParameters );
+void PeriodicTaskGenerator_2( void *pvParameters );
+void PeriodicTask_3 ( void *pvParameters );
+void PeriodicTaskGenerator_3( void *pvParameters );
 
 /*--------------------------- Aperiodic Tasks --------------------------------*/
 

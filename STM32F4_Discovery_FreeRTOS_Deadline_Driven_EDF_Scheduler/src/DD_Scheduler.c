@@ -49,7 +49,7 @@ void DD_Scheduler( void *pvParameters )
             DD_TaskList_Transfer_Overdue( &active_list, &overdue_list );
 
             // Step 2: Remove items from overdue list, only keep 10 most recent overdue.
-            while( overdue_list.list_length > 10 )
+            while( overdue_list.list_length > 5 )
             {
                 DD_TaskList_Remove( overdue_list.list_head , &overdue_list );
             }
@@ -254,7 +254,7 @@ uint32_t DD_Task_Create(DD_TaskHandle_t create_task)
     xTaskCreate( create_task->task_function ,   // TaskFunction_t Function             -> the task that will run. Either a predefined periodic or aperiodic task.
                  create_task->task_name ,       // const char * const pcName           -> Name given to the task, limited in character length by configMAX_TASK_NAME_LEN in FreeRTOSConfig.h
                  configMINIMAL_STACK_SIZE ,     // configSTACK_DEPTH_TYPE usStackDepth -> Set to configMINIMAL_STACK_SIZE
-                 NULL ,                         // void *pvParameters                  -> Set to NULL, have no need for them. (Maybe could pass the DD_TaskHandle_t if wanted?)
+                 (void*)create_task ,          // void *pvParameters                  -> Pass in the dd task handle so the function is aware of its parameters.
                  DD_TASK_PRIORITY_MINIMUM ,     // UBaseType_t uxPriority              -> Priority set to minimum, assigned by DD_scheduler
                  &(create_task->task_handle) ); // TaskHandle_t *pxCreatedTask         -> Used to pass a handle to the created task out of the xTaskCreate() function
 
