@@ -37,7 +37,7 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 	// Check input parameters are not NULL
 	if( task_to_remove == NULL )
 	{
-		printf("ERROR(DD_Task_Free): one of the parameters passed was NULL.\n");
+		printf("ERROR(DD_Task_Free): one of the pa1rameters passed was NULL.\n");
 		return false;
 	}
 
@@ -354,9 +354,12 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
             }
 
             // TASK MANAGEMENT
-            // Suspend the task and delete it
-            vTaskSuspend( iterator->task_handle );
-            vTaskDelete( iterator->task_handle );
+            // Suspend the task and delete it only if task is periodic
+            if( iterator->task_type == DD_TT_Periodic )
+            {
+				vTaskSuspend( iterator->task_handle );
+				vTaskDelete( iterator->task_handle );
+            }
             // When the task is removed from the overdue list, it will clear the DD_Task_t data.
 
         }

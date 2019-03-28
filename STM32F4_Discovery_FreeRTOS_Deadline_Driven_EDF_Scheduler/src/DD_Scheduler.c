@@ -51,7 +51,7 @@ void DD_Scheduler( void *pvParameters )
             // Step 2: Remove items from overdue list, only keep 10 most recent overdue.
             while( overdue_list.list_length > 5 )
             {
-            	printf("DD_Scheduler: Removing item from overdue list.\n\n");
+            	printf("\nDD_Scheduler: Removing item from overdue list.\n\n");
             	DD_TaskList_Remove_Head(  &overdue_list );
             }
 
@@ -67,7 +67,7 @@ void DD_Scheduler( void *pvParameters )
                     if( DD_task_handle->task_type == DD_TT_Aperiodic)
                     {
                         // Timer name
-                        char timer_name[50] = "Timer_";
+                        char timer_name[50] = "T_";
                         strcat(timer_name, DD_task_handle->task_name );
 
                         TickType_t timer_period = DD_task_handle->deadline - xTaskGetTickCount();
@@ -179,11 +179,10 @@ static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
      */
     DD_TaskHandle_t aperiodic_task = (DD_TaskHandle_t)pvTimerGetTimerID( xTimer );
 
+    // Delete the task that called this callback (was oneshot, we done with it)
+    xTimerDelete( aperiodic_task->aperiodic_timer, 0 );
     // Clear the local timer variable for the aperiodic_task
     aperiodic_task->aperiodic_timer = NULL;
-
-    // Delete the task that called this callback (was oneshot, we done with it)
-    xTimerDelete( xTimer, 0 );
 
     // Stop the task and delete it.
     // Note: Can't call DD_task_delete or send a message to the scheduler to delete
@@ -365,7 +364,7 @@ void MonitorTask ( void *pvParameters )
 {
     while(1)
     {
-    	printf("Monitoring Task: Current Time = %d.\n", (int)xTaskGetTickCount());
+    	printf("\nMonitoring Task: Current Time = %d.\n", (int)xTaskGetTickCount());
         DD_Return_Active_List();
         DD_Return_Overdue_List();
 

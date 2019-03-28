@@ -29,9 +29,11 @@ void PeriodicTask_1 ( void *pvParameters )
 	// DD_TaskHandle_t of created task passed in pvParameters
 	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
-	TickType_t current_time;
-	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t current_time = 0;
+	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+	TickType_t relative_deadline = 0;
+
 
     while(1)
     {
@@ -58,11 +60,10 @@ void PeriodicTask_1 ( void *pvParameters )
         }
 
         STM_EVAL_LEDOff(amber_led);
-        TickType_t relative_deadline = myself->deadline - current_time;
+        relative_deadline = myself->deadline - current_time;
         vTaskDelayUntil( &current_time, relative_deadline );
 
-        TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
-        DD_Task_Delete( my_task );
+        DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
 } // end PeriodicTask_1
 
@@ -100,9 +101,10 @@ void PeriodicTask_2 ( void *pvParameters )
 	// DD_TaskHandle_t of created task passed in pvParameters
 	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
-	TickType_t current_time;
-	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t current_time = 0;
+	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+	TickType_t relative_deadline = 0;
 
     while(1)
     {
@@ -120,7 +122,7 @@ void PeriodicTask_2 ( void *pvParameters )
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
         	{
-				if( current_time % 250 == 0 )
+				if( current_time % 150 == 0 )
 				{
 					STM_EVAL_LEDToggle(green_led);
 				}
@@ -129,11 +131,10 @@ void PeriodicTask_2 ( void *pvParameters )
         }
 
         STM_EVAL_LEDOff(green_led);
-        TickType_t relative_deadline = myself->deadline - current_time;
+        relative_deadline = myself->deadline - current_time;
         vTaskDelayUntil( &current_time, relative_deadline );
 
-        TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
-        DD_Task_Delete( my_task );
+        DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
 } // end PeriodicTask_2
 
@@ -171,8 +172,8 @@ void PeriodicTask_3 ( void *pvParameters )
 	// DD_TaskHandle_t of created task passed in pvParameters
 	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
-	TickType_t current_time;
-	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t current_time = 0;
+	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 1000 / portTICK_PERIOD_MS;
 
     while(1)
@@ -182,7 +183,7 @@ void PeriodicTask_3 ( void *pvParameters )
     	previous_tick = current_time;
     	debugprintf("PeriodicTask_3: Current time = %u. \n", (unsigned int)current_time);
 
-    	// Action perfomed by periodic task
+    	// Action performed by periodic task
         STM_EVAL_LEDToggle(blue_led);
 
         // Simulating execution time.
@@ -269,9 +270,10 @@ void AperiodicTask_1 ( void *pvParameters )
 	// DD_TaskHandle_t of created task passed in pvParameters
 	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
-	TickType_t current_time;
-	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t current_time = 0;
+	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 500 / portTICK_PERIOD_MS;
+	TickType_t relative_deadline = 0;
 
     while(1)
     {
@@ -280,7 +282,7 @@ void AperiodicTask_1 ( void *pvParameters )
     	previous_tick = current_time;
     	debugprintf("AperiodicTask_1: Current time = %u. \n", (unsigned int)current_time);
 
-    	// Action perfomed by periodic task
+    	// Action performed by periodic task
         STM_EVAL_LEDToggle(red_led);
 
         // Simulating execution time.
@@ -298,7 +300,7 @@ void AperiodicTask_1 ( void *pvParameters )
         }
 
         STM_EVAL_LEDOff(red_led);
-        TickType_t relative_deadline = myself->deadline - current_time;
+        relative_deadline = myself->deadline - current_time;
         vTaskDelayUntil( &current_time, relative_deadline );
 
         TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
