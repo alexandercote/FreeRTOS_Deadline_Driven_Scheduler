@@ -254,6 +254,7 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
     // Go back through the list, and increment all reset the priorities.
     iterator = remove_list->list_tail;
     vTaskPrioritySet(iterator->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
+    itr_priority = DD_TASK_PRIORITY_EXECUTION_BASE;
 
     while( iterator->previous_cell != NULL )
     {
@@ -262,6 +263,7 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
         vTaskPrioritySet(iterator->task_handle, itr_priority);
     }
 } // end DD_TaskList_Remove
+
 
 /*
  * DD_TaskList_Remove_Head: Remove the head of a list based off the task handle TaskHandle_t
