@@ -113,7 +113,6 @@ void HardwareInit()
     STM_EVAL_PBInit( BUTTON_USER, BUTTON_MODE_EXTI );
     NVIC_SetPriority( USER_BUTTON_EXTI_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1 ); // Must be above configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
 
-
 } // end HardwareInit
 
 

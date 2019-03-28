@@ -9,6 +9,9 @@
 
 /*--------------------------- Task Creation/Deletion (List Elements) --------------------------------*/
 
+/*
+ * DD_Task_Allocate: Creates an instance of a DD_TaskHandle_t, and zeroes out the struct data.
+ */
 DD_TaskHandle_t DD_Task_Allocate()
 {
     DD_TaskHandle_t newtask = (DD_TaskHandle_t)pvPortMalloc(sizeof(DD_Task_t));
@@ -26,8 +29,18 @@ DD_TaskHandle_t DD_Task_Allocate()
     return newtask;
 }
 
+/*
+ * DD_Task_Free: Free the instance of a DD_TaskHandle_t, and zeroes out the struct data.
+ */
 bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 {
+	// Check input parameters are not NULL
+	if( task_to_remove == NULL )
+	{
+		printf("ERROR(DD_Task_Free): one of the parameters passed was NULL.\n");
+		return false;
+	}
+
     // return false if the task wasn't removed from active/overdue queue, or removed from active tasks.
     if(task_to_remove->next_cell != NULL || task_to_remove->previous_cell != NULL)
     {
@@ -53,11 +66,20 @@ bool DD_Task_Free(DD_TaskHandle_t task_to_remove)
 }
 
 
-/*--------------------------- Task Initialization --------------------------------*/
+/*--------------------------- Task List Initialization --------------------------------*/
 
-// Init the list structure with empty values.
+/*
+ * DD_TaskList_Init: Initialize a list with zeroed out values
+ */
 void DD_TaskList_Init( DD_TaskListHandle_t init_list )
 {
+	// Check input parameters are not NULL
+	if( init_list == NULL )
+	{
+		printf("ERROR(DD_TaskList_Init): one of the parameters passed was NULL.\n");
+		return;
+	}
+
     init_list->list_length = 0;
     init_list->list_head   = NULL;
     init_list->list_tail   = NULL;
@@ -66,32 +88,21 @@ void DD_TaskList_Init( DD_TaskListHandle_t init_list )
 
 /*--------------------------- Task List Access Functions --------------------------------*/
 
-//DD_TaskList_Basic_Insert -> inserts element at the end
-void DD_TaskList_Basic_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHandle_t insert_list )
-{
-    if( insert_list->list_length == 0 )
-        {
-            insert_list->list_length = 1;                  // first item in list, length is 1.
-            insert_list->list_head = task_to_insert;
-            insert_list->list_tail = task_to_insert;
-        }
-    else
-    {
-        DD_TaskHandle_t temp_swap = insert_list->list_tail; // get the current list tail
-        insert_list->list_tail        = task_to_insert;     // make the new tail the task to insert
-        temp_swap->next_cell          = task_to_insert;     // set the old tail as the new task's previous cell
-        task_to_insert->previous_cell = temp_swap;          // set the old tail's next cell as the new task
 
-        (insert_list->list_length)++;                       // increment the list size
-    }
-}
-
-// DD_TaskList_Deadline_Insert -> inserts a task into the active list based off priority.
-
-// Priority Management:
-// From head of the list, increment priority until the insertion location is reached.
+/*
+ * DD_TaskList_Deadline_Insert: Insert a task into the active list based off the deadline, earliest deadline goes at the head
+ *
+ * Priority Management: From head of the list, increment priority until the insertion location is reached.
+ */
 void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHandle_t insert_list )
 {
+	// Check input parameters are not NULL
+	if( ( task_to_insert == NULL ) || ( insert_list == NULL ) )
+	{
+		printf("ERROR(DD_TaskList_Deadline_Insert): one of the parameters passed was NULL.\n");
+		return;
+	}
+
     // Step 1: check if list is empty, else place element according to its deadline
     if( insert_list->list_length == 0 )
     {
@@ -154,17 +165,27 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
 } // end DD_TaskList_Deadline_Insert
 
 
-// DD_TaskList_Remove -> removes a task given its handle
-
-// Priority Management:
-// From head of the list, decrement priority until the insertion location is reached.
+/*
+ * DD_TaskList_Remove: Remove a task from the active list based off the task handle TaskHandle_t
+ *
+ * Priority Management: From head of the list, increment priority until the insertion location is reached.
+ */
 void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
 {
+	// Check input parameters are not NULL
+	if( ( task_to_remove == NULL ) || ( remove_list == NULL ) )
+	{
+		printf("ERROR(DD_TaskList_Basic_Insert): one of the parameters passed was NULL.\n");
+		return;
+	}
+
+	// Check list isn't empty.
     if( remove_list->list_length == 0 )
     {
         printf("ERROR(DD_TaskList_Remove): trying to remove a task from an empty list...\n");
         return;
     }
+
 
     DD_TaskHandle_t iterator = remove_list->list_head; // start from head, closest deadline
     uint32_t itr_priority = uxTaskPriorityGet(iterator->task_handle); // grab the highest priority value
@@ -240,50 +261,73 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
 }
 
 
-// Checks if task exists in list.
-bool DD_TaskList_Task_Exists( DD_TaskHandle_t task , DD_TaskListHandle_t list )
-{
-    DD_TaskHandle_t iterator = list->list_head; // start from head
-    while( iterator != NULL )
-    {
-        if( iterator == task ) // found the task
-            return true;
-        iterator = iterator->next_cell;
-    }
-    return false;
-
-}
-
-
-// goes through active list, removes overdue tasks, adds them to overdue list
+/*
+ * DD_TaskList_Transfer_Overdue: Cycles through active list, removes overdue tasks and transfers them into the overdue list
+ */
 void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskListHandle_t overdue_list )
 {
+	// Check input parameters are not NULL
+	if( ( active_list == NULL ) || ( overdue_list == NULL ) )
+	{
+		printf("ERROR(DD_TaskList_Transfer_Overdue): one of the parameters passed was NULL.\n");
+		return;
+	}
+
     DD_TaskHandle_t iterator = active_list->list_head; // start from head, closest deadline
     TickType_t current_time = xTaskGetTickCount();     // fetch the current time to check deadline.
     while( iterator != NULL )
     {
         if( iterator->deadline < current_time ) // passed the deadline.
         {
-        	// TODO FIX THE DUMB DELETE
+            // Same removal algorithm as DD_Remove, but don't need the overhead of calling the function and iterating.
+            if( active_list->list_length == 1 ) // Know we are removing the head and tail of the list.
+            {
+            	active_list->list_head = NULL;   // No more items in the list, head is null.
+            	active_list->list_tail = NULL;   // No more items in the list, tail is null.
+            }
+            else if( iterator == active_list->list_head ) //Removing the head of the list.
+            {
+            	active_list->list_head = iterator->next_cell;      // Make the new head of the list the next item in line
+                iterator->next_cell->previous_cell = NULL;         // Ensure the next item in the list points to NULL for anything before it.
+            }
+            else if( iterator == active_list->list_tail ) //Removing the tail of the list
+            {
+            	active_list->list_head = iterator->previous_cell;  // Make the new tail of the list the previous item in line
+                iterator->previous_cell->next_cell = NULL;         // Ensure the previous item in the list points to NULL for anything after it.
+            }
+            else // Removing from middle of the list
+            {
+                iterator->previous_cell->next_cell = iterator->next_cell;
+                iterator->next_cell->previous_cell = iterator->previous_cell;
+            }
 
-            // ACTIVE LIST MANAGEMENT
-            DD_TaskHandle_t prev_task = iterator->previous_cell;
-            DD_TaskHandle_t next_task = iterator->next_cell;
-
-            if(prev_task == NULL) // OR if(task_to_remove == remove_list->list_head)
-                active_list->list_head = next_task;
-            if(next_task == NULL) // OR if(task_to_remove == remove_list->list_tail)
-                active_list->list_tail = prev_task;
-
-            prev_task->next_cell     = next_task;
-            next_task->previous_cell = prev_task;
+            // Clear next/prev cell for removing task
+            iterator->previous_cell = NULL;
+            iterator->next_cell     = NULL;
 
             (active_list->list_length)--; // decrement the list size
 
 
-            // OVERDUE LIST MANAGEMENT
-            DD_TaskList_Basic_Insert( iterator , overdue_list );
 
+            // OVERDUE LIST MANAGEMENT
+            // Basic insert algorthm to append value to the end of the list
+
+
+            if( overdue_list->list_length == 0 )
+            {
+            	overdue_list->list_length = 1;                  // first item in list, length is 1.
+            	overdue_list->list_head = iterator;
+            	overdue_list->list_tail = iterator;
+            }
+            else
+            {
+                DD_TaskHandle_t temp_swap     = overdue_list->list_tail; // get the current list tail
+                overdue_list->list_tail       = iterator;       // make the new tail the task to insert
+                temp_swap->next_cell          = iterator;       // set the old tail as the new task's previous cell
+                iterator->previous_cell       = temp_swap;      // set the old tail's next cell as the new task
+
+                (overdue_list->list_length)++;                   // increment the list size
+            }
 
             // TASK MANAGEMENT
             // Suspend the task and delete it
@@ -302,7 +346,10 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
 }
 
 
-// Returns a string of
+
+/*
+ * DD_TaskList_Formatted_Data: Returns the task name and deadline of each task in a list, formatted in a string buffer.
+ */
 char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 {
     // Get the size of the list, and assign a buffer size based off the number of elements.
@@ -324,17 +371,3 @@ char * DD_TaskList_Formatted_Data( DD_TaskListHandle_t list )
 }
 
 
-// Given a TaskHandle_t, return the DD_TaskHandle_t associated.
-DD_TaskHandle_t DD_TaskList_Get_DD_TaskHandle_t( TaskHandle_t task , DD_TaskListHandle_t list )
-{
-    DD_TaskHandle_t iterator = list->list_head; // start from head
-    while( iterator != NULL )
-    {
-        if( iterator->task_handle == task )
-            return iterator;
-        iterator = iterator->next_cell;
-    }
-    // if we get to this point, function was used incorrectly.
-    printf("ERROR: DD_TaskList_Get_DD_TaskHandle_t: TaskHandle_t doesn't exist \n");
-    return iterator; // this is wrong, but have to return something.
-}
