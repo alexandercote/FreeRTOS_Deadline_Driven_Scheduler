@@ -33,20 +33,21 @@ void PeriodicTask_1 ( void *pvParameters )
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
-
+	TickType_t start_time = 0;
 
     while(1)
     {
     	// Get the current time
     	current_time = xTaskGetTickCount();
     	previous_tick = current_time;
-    	debugprintf("PeriodicTask_1: Current time = %u. \n", (unsigned int)current_time);
+    	start_time = current_time;
+    	debugprintf("\nPeriodicTask_1 Executing: Current time = %u, Priority = %u \n", (unsigned int)current_time, (unsigned int)uxTaskPriorityGet( NULL ) );
 
     	// Action perfomed by periodic task
         STM_EVAL_LEDToggle(amber_led);
 
         // Simulating execution time.
-        while( current_time < (myself->creation_time + execution_time) )
+        while( current_time < (start_time + execution_time) )
         {
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
@@ -70,6 +71,7 @@ void PeriodicTask_1 ( void *pvParameters )
 
 void PeriodicTaskGenerator_1( void *pvParameters )
 {
+	vTaskDelay( 2000 );
     while (1)
     {
         TickType_t deadline_gen_1 = 5000;
@@ -105,19 +107,21 @@ void PeriodicTask_2 ( void *pvParameters )
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
+	TickType_t start_time = 0;
 
     while(1)
     {
     	// Get the current time
     	current_time = xTaskGetTickCount();
     	previous_tick = current_time;
-    	debugprintf("PeriodicTask_2: Current time = %u. \n", (unsigned int)current_time);
+    	start_time = current_time;
+    	debugprintf("\nPeriodicTask_2 Executing: Current time = %u, Priority = %u \n", (unsigned int)current_time, (unsigned int)uxTaskPriorityGet( NULL ) );
 
     	// Action perfomed by periodic task
         STM_EVAL_LEDToggle(green_led);
 
         // Simulating execution time.
-        while( current_time < (myself->creation_time + execution_time) )
+        while( current_time < (start_time + execution_time) )
         {
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
@@ -169,25 +173,25 @@ void PeriodicTaskGenerator_2( void *pvParameters )
  */
 void PeriodicTask_3 ( void *pvParameters )
 {
-	// DD_TaskHandle_t of created task passed in pvParameters
-	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 1000 / portTICK_PERIOD_MS;
+	TickType_t start_time = 0;
 
     while(1)
     {
     	// Get the current time
     	current_time = xTaskGetTickCount();
     	previous_tick = current_time;
-    	debugprintf("PeriodicTask_3: Current time = %u. \n", (unsigned int)current_time);
+    	start_time = current_time;
+    	debugprintf("\nPeriodicTask_3 Executing: Current time = %u, Priority = %u \n", (unsigned int)current_time, (unsigned int)uxTaskPriorityGet( NULL ) );
 
     	// Action performed by periodic task
         STM_EVAL_LEDToggle(blue_led);
 
         // Simulating execution time.
-        while( current_time < (myself->creation_time + execution_time) )
+        while( current_time < (start_time + execution_time) )
         {
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
@@ -274,19 +278,21 @@ void AperiodicTask_1 ( void *pvParameters )
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
 	TickType_t execution_time = 500 / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
+	TickType_t start_time = 0;
 
     while(1)
     {
     	// Get the current time
     	current_time = xTaskGetTickCount();
     	previous_tick = current_time;
-    	debugprintf("AperiodicTask_1: Current time = %u. \n", (unsigned int)current_time);
+    	start_time = current_time;
+    	debugprintf("\nAperiodicTask_1 Executing: Current time = %u, Priority = %u \n", (unsigned int)current_time, (unsigned int)uxTaskPriorityGet( NULL ) );
 
     	// Action performed by periodic task
         STM_EVAL_LEDToggle(red_led);
 
         // Simulating execution time.
-        while( current_time < (myself->creation_time + execution_time) )
+        while( current_time < (start_time + execution_time) )
         {
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
@@ -303,8 +309,7 @@ void AperiodicTask_1 ( void *pvParameters )
         relative_deadline = myself->deadline - current_time;
         vTaskDelayUntil( &current_time, relative_deadline );
 
-        TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
-        DD_Task_Delete( my_task );
+        DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
 } // end AperiodicTask_1
 
