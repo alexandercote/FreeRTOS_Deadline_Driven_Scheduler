@@ -32,7 +32,7 @@ void PeriodicTaskGenerator_3( void *pvParameters );
 /*--------------------------- Aperiodic Tasks --------------------------------*/
 
 void EXTI0_IRQHandler(void);
-void AperiodicTask( void *pvParameters );
+void AperiodicTask_1( void *pvParameters );
 void AperiodicTaskGenerator( void *pvParameters );
 
 

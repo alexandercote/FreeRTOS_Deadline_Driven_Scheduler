@@ -152,7 +152,8 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
                 insert_list->list_tail        = task_to_insert;
 
                 (insert_list->list_length)++; // increment the list size
-                vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE);
+                vTaskPrioritySet(iterator->task_handle, itr_priority );                         // update the current cell's priority
+                vTaskPrioritySet(task_to_insert->task_handle, DD_TASK_PRIORITY_EXECUTION_BASE); // as the item is now the bottom, assign it bottom priority.
                 return; // no need to continue the loop, even though its about to end.
             }
 
@@ -170,7 +171,7 @@ void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHa
  *
  * Priority Management: From head of the list, increment priority until the insertion location is reached.
  */
-void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list )
+void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list , bool clear_memory )
 {
 	// Check input parameters are not NULL
 	if( ( task_to_remove == NULL ) || ( remove_list == NULL ) )
@@ -235,7 +236,10 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
             iterator->next_cell     = NULL;
 
             // Free DD_Task_t memory
-            DD_Task_Free( iterator );
+            if( clear_memory )
+            {
+            	DD_Task_Free( iterator );
+            }
 
             return; // done with the removal
         }
@@ -322,34 +326,9 @@ void DD_TaskList_Transfer_Overdue( DD_TaskListHandle_t active_list , DD_TaskList
     {
         if( iterator->deadline < current_time ) // passed the deadline.
         {
-            // Same removal algorithm as DD_Remove, but don't need the overhead of calling the function and iterating.
-            if( active_list->list_length == 1 ) // Know we are removing the head and tail of the list.
-            {
-            	active_list->list_head = NULL;   // No more items in the list, head is null.
-            	active_list->list_tail = NULL;   // No more items in the list, tail is null.
-            }
-            else if( iterator == active_list->list_head ) //Removing the head of the list.
-            {
-            	active_list->list_head = iterator->next_cell;      // Make the new head of the list the next item in line
-                iterator->next_cell->previous_cell = NULL;         // Ensure the next item in the list points to NULL for anything before it.
-            }
-            else if( iterator == active_list->list_tail ) //Removing the tail of the list
-            {
-            	active_list->list_head = iterator->previous_cell;  // Make the new tail of the list the previous item in line
-                iterator->previous_cell->next_cell = NULL;         // Ensure the previous item in the list points to NULL for anything after it.
-            }
-            else // Removing from middle of the list
-            {
-                iterator->previous_cell->next_cell = iterator->next_cell;
-                iterator->next_cell->previous_cell = iterator->previous_cell;
-            }
-
-            // Clear next/prev cell for removing task
-            iterator->previous_cell = NULL;
-            iterator->next_cell     = NULL;
-
-            (active_list->list_length)--; // decrement the list size
-
+        	// ACTIVE LIST MANAGEMENT
+        	// Remove item from active list
+        	DD_TaskList_Remove( iterator->task_handle , active_list, false );
 
 
             // OVERDUE LIST MANAGEMENT

@@ -78,7 +78,7 @@ void DD_TaskList_Init( DD_TaskListHandle_t init_list );
 void DD_TaskList_Deadline_Insert( DD_TaskHandle_t task_to_insert , DD_TaskListHandle_t insert_list );
 
 // Remove item from list given its DD_TaskHandle_t
-void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list );
+void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remove_list , bool clear_memory );
 
 // Remove head of list.
 void DD_TaskList_Remove_Head( DD_TaskListHandle_t remove_list );

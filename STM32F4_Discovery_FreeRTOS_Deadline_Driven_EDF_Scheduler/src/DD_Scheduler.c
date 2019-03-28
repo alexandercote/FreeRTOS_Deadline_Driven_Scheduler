@@ -95,7 +95,7 @@ void DD_Scheduler( void *pvParameters )
                         // Deal with this in DD_TaskList_Remove
 
                     // Remove element from list, and free its memory, and if its aperiodic, stops the timer
-                    DD_TaskList_Remove( received_message.message_sender , &active_list );
+                    DD_TaskList_Remove( received_message.message_sender , &active_list , true );
                     // NOTE: If the task was moved to the overdue list, it wont have been deleted.
                     //       The memory stored for DD_Task_t will still exist for that task.
                     //       Will need a method to wipe the overdue list at one point.
@@ -192,7 +192,7 @@ static void DD_Aperiodic_Timer_Callback( xTimerHandle xTimer )
     vTaskDelete( aperiodic_task->task_handle );
 
     // Need to validate that there wont be a memory leak here.
-    // Should be aperiodic task -> into overdue_list -> remove from overdue list after 10 elements -> DD_Task_Free -> vPortFree
+    // Should be aperiodic task -> into overdue_list -> remove from overdue list after 5 elements -> DD_Task_Free -> vPortFree
     // So should be okay.
 } // end DD_Aperiodic_Timer_Callback
 

@@ -165,7 +165,6 @@ void PeriodicTaskGenerator_2( void *pvParameters )
  * PeriodicTask_3
  * Deadline:       9000 ms // Wont kill itself at deadline -> force overdue
  * Execution Time: 1000 ms
- *
  */
 void PeriodicTask_3 ( void *pvParameters )
 {
@@ -260,17 +259,52 @@ void EXTI0_IRQHandler(void) {
     }
 }
 
-void AperiodicTask ( void *pvParameters )
+/*
+ * AperiodicTask_1
+ * Deadline:       2000 ms
+ * Execution Time: 500 ms
+ */
+void AperiodicTask_1 ( void *pvParameters )
 {
+	// DD_TaskHandle_t of created task passed in pvParameters
+	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
+
+	TickType_t current_time;
+	TickType_t previous_tick; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
+	TickType_t execution_time = 500 / portTICK_PERIOD_MS;
+
     while(1)
     {
-        // Switch an LED
+    	// Get the current time
+    	current_time = xTaskGetTickCount();
+    	previous_tick = current_time;
+    	debugprintf("AperiodicTask_1: Current time = %u. \n", (unsigned int)current_time);
+
+    	// Action perfomed by periodic task
         STM_EVAL_LEDToggle(red_led);
-        vTaskDelay(200);
+
+        // Simulating execution time.
+        while( current_time < (myself->creation_time + execution_time) )
+        {
+        	current_time = xTaskGetTickCount();
+        	if( current_time != previous_tick )
+        	{
+				if( current_time % 75 == 0 )
+				{
+					STM_EVAL_LEDToggle(red_led);
+				}
+        	}
+        	previous_tick = current_time;
+        }
+
+        STM_EVAL_LEDOff(red_led);
+        TickType_t relative_deadline = myself->deadline - current_time;
+        vTaskDelayUntil( &current_time, relative_deadline );
+
         TaskHandle_t my_task = xTaskGetCurrentTaskHandle();
         DD_Task_Delete( my_task );
     }
-}
+} // end AperiodicTask_1
 
 void AperiodicTaskGenerator( void *pvParameters )
 {
@@ -284,7 +318,7 @@ void AperiodicTaskGenerator( void *pvParameters )
 
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
-        generated_task->task_function = AperiodicTask;
+        generated_task->task_function = AperiodicTask_1;
         generated_task->task_name     = "Aperiod_Task_1";
         generated_task->task_type     = DD_TT_Aperiodic;
 
