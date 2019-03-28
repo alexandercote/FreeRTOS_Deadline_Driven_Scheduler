@@ -196,7 +196,7 @@ void DD_TaskList_Remove( TaskHandle_t task_to_remove , DD_TaskListHandle_t remov
         if( iterator->task_handle == task_to_remove ) // found the task to remove
         {
             // This means that delete was called before the timer callback executed.
-            if( iterator->task_type == DD_TT_Aperiodic )
+            if( (iterator->task_type == DD_TT_Aperiodic) && (iterator->aperiodic_timer != NULL) )
             {
                 xTimerStop( iterator->aperiodic_timer, 0 );      // Stop the timer
                 xTimerDelete( iterator->aperiodic_timer, 0 );    // Delete the timer

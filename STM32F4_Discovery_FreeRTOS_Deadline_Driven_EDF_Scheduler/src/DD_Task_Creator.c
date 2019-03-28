@@ -308,7 +308,7 @@ void AperiodicTask_1 ( void *pvParameters )
 
 void AperiodicTaskGenerator( void *pvParameters )
 {
-    TickType_t deadline = 500;
+    TickType_t deadline = 2000;
 
     while (1)
     {

@@ -365,6 +365,7 @@ void MonitorTask ( void *pvParameters )
 {
     while(1)
     {
+    	printf("Monitoring Task: Current Time = %d.\n", (int)xTaskGetTickCount());
         DD_Return_Active_List();
         DD_Return_Overdue_List();
 
