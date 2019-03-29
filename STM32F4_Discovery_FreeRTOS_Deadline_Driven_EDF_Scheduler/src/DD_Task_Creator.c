@@ -31,7 +31,7 @@ void PeriodicTask_1 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+	TickType_t execution_time = 100 / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
@@ -62,8 +62,8 @@ void PeriodicTask_1 ( void *pvParameters )
 
         STM_EVAL_LEDOff(amber_led);
         relative_deadline = myself->deadline - current_time;
-        vTaskDelayUntil( &current_time, relative_deadline );
-
+        //vTaskDelayUntil( &current_time, relative_deadline );
+        //vTaskDelay( 400 );
         DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
 } // end PeriodicTask_1
@@ -71,10 +71,10 @@ void PeriodicTask_1 ( void *pvParameters )
 
 void PeriodicTaskGenerator_1( void *pvParameters )
 {
-	vTaskDelay( 2000 );
+	//vTaskDelay( 2000 );
     while (1)
     {
-        TickType_t deadline_gen_1 = 5000;
+        TickType_t deadline_gen_1 = 500;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_1;
@@ -87,7 +87,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 5000 );
+        vTaskDelay( 500 );
     }
 }
 
@@ -105,7 +105,7 @@ void PeriodicTask_2 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 2000 / portTICK_PERIOD_MS;
+	TickType_t execution_time = 200 / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
@@ -136,7 +136,8 @@ void PeriodicTask_2 ( void *pvParameters )
 
         STM_EVAL_LEDOff(green_led);
         relative_deadline = myself->deadline - current_time;
-        vTaskDelayUntil( &current_time, relative_deadline );
+        //vTaskDelay( 300 );
+        //vTaskDelayUntil( &current_time, relative_deadline );
 
         DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
@@ -147,7 +148,7 @@ void PeriodicTaskGenerator_2( void *pvParameters )
 {
     while (1)
     {
-        TickType_t deadline_gen_2 = 8000;
+        TickType_t deadline_gen_2 = 500;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_2;
@@ -160,7 +161,7 @@ void PeriodicTaskGenerator_2( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 8000 );
+        vTaskDelay( 500 );
     }
 }
 
@@ -173,10 +174,13 @@ void PeriodicTaskGenerator_2( void *pvParameters )
  */
 void PeriodicTask_3 ( void *pvParameters )
 {
+	// DD_TaskHandle_t of created task passed in pvParameters
+	DD_TaskHandle_t myself = (DD_TaskHandle_t)pvParameters;
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 1000 / portTICK_PERIOD_MS;
+	TickType_t execution_time = 200 / portTICK_PERIOD_MS;
+	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
     while(1)
@@ -204,7 +208,12 @@ void PeriodicTask_3 ( void *pvParameters )
         	previous_tick = current_time;
         }
         STM_EVAL_LEDOff(blue_led);
-        vTaskDelay( 8500 ); // 9s deadline, 1s execution, 8.5s delay -> force overdue
+        //vTaskDelay( 8500 ); // 9s deadline, 1s execution, 8.5s delay -> force overdue
+
+        relative_deadline = myself->deadline - current_time;
+        //vTaskDelayUntil( &current_time, relative_deadline );
+        //vTaskDelay( 300 );
+        DD_Task_Delete( xTaskGetCurrentTaskHandle() );
 
     }
 } // end PeriodicTask_3
@@ -214,7 +223,7 @@ void PeriodicTaskGenerator_3( void *pvParameters )
 {
     while (1)
     {
-        TickType_t deadline_gen_3 = 9000;
+        TickType_t deadline_gen_3 = 500;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_3;
@@ -227,7 +236,7 @@ void PeriodicTaskGenerator_3( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 9000 );
+        vTaskDelay( 500 );
     }
 }
 
