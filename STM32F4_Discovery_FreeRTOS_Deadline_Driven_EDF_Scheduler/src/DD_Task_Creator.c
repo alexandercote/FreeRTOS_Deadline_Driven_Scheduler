@@ -15,6 +15,36 @@
  * blue_led     LED6
  */
 
+# define task_1_period (500)
+# define task_1_exec   (95)
+
+# define task_2_period (500)
+# define task_2_exec   (150)
+
+# define task_3_period (750)
+# define task_3_exec   (250)
+
+/* Required Tests
+ * Test Bench #1:
+ *  Task                 execution time    period (Relative-deadline)
+ *  	1                             95                          500
+ *  	2                             150                         500
+ *  	3                             250                         750
+ *
+ *
+ *  Test Bench #2:
+ *  Task         execution time          period (Relative-deadline)
+ *  	1	             95                                  250
+ *  	2	            150                                 500
+ *  	3	            250                                  750
+ *
+ *
+ *  Test Bench #3:
+ *  Task   execution time                 period (Relative-deadline)
+ *  	1	            100                                  500
+ *  	2	            200                                  500
+ *  	3	            200                                  500
+ */
 
 /*--------------------------- Periodic Tasks --------------------------------*/
 
@@ -31,7 +61,7 @@ void PeriodicTask_1 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 100 / portTICK_PERIOD_MS;
+	TickType_t execution_time = task_1_exec / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
@@ -74,7 +104,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 	//vTaskDelay( 2000 );
     while (1)
     {
-        TickType_t deadline_gen_1 = 500;
+        TickType_t deadline_gen_1 = task_1_period;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_1;
@@ -87,7 +117,7 @@ void PeriodicTaskGenerator_1( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 500 );
+        vTaskDelay( task_1_period );
     }
 }
 
@@ -105,7 +135,7 @@ void PeriodicTask_2 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 200 / portTICK_PERIOD_MS;
+	TickType_t execution_time = task_2_exec / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
@@ -148,7 +178,7 @@ void PeriodicTaskGenerator_2( void *pvParameters )
 {
     while (1)
     {
-        TickType_t deadline_gen_2 = 500;
+        TickType_t deadline_gen_2 = task_2_period;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_2;
@@ -161,7 +191,7 @@ void PeriodicTaskGenerator_2( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 500 );
+        vTaskDelay( task_2_period );
     }
 }
 
@@ -223,7 +253,7 @@ void PeriodicTaskGenerator_3( void *pvParameters )
 {
     while (1)
     {
-        TickType_t deadline_gen_3 = 500;
+        TickType_t deadline_gen_3 = task_3_period;
         DD_TaskHandle_t generated_task = DD_Task_Allocate();
 
         generated_task->task_function = PeriodicTask_3;
@@ -236,7 +266,7 @@ void PeriodicTaskGenerator_3( void *pvParameters )
 
         DD_Task_Create( generated_task );
 
-        vTaskDelay( 500 );
+        vTaskDelay( task_3_period );
     }
 }
 
@@ -285,7 +315,7 @@ void AperiodicTask_1 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 500 / portTICK_PERIOD_MS;
+	TickType_t execution_time = task_3_exec / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
