@@ -362,13 +362,14 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
  */
 void MonitorTask ( void *pvParameters )
 {
+	vTaskDelay(10000);
     while(1)
     {
     	printf("\nMonitoring Task: Current Time = %u, Priority = %u\n", (unsigned int)xTaskGetTickCount(), (unsigned int)uxTaskPriorityGet( NULL ));
         DD_Return_Active_List();
         DD_Return_Overdue_List();
 
-        vTaskDelay(5000); // Wait for 5 seconds.
+        vTaskDelay(10000); // Wait for 5 seconds.
     }
 }
 
