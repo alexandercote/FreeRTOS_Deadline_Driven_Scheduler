@@ -14,7 +14,7 @@
  * red_led      LED5
  * blue_led     LED6
  */
-# define task_1_period (250)
+# define task_1_period (500)
 # define task_1_exec   (95)
 
 # define task_2_period (500)
@@ -22,6 +22,9 @@
 
 # define task_3_period (750)
 # define task_3_exec   (250)
+
+# define ap_task_exec 	(50)
+# define ap_task_deadline (200)
 
 /* Required Tests
  * Test Bench #1:
@@ -312,7 +315,7 @@ void AperiodicTask_1 ( void *pvParameters )
 
 	TickType_t current_time = 0;
 	TickType_t previous_tick = 0; //Need this to "debounce" the xTaskGetTickCount(), so that you only execute one task per tickcount.
-	TickType_t execution_time = 500 / portTICK_PERIOD_MS;
+	TickType_t execution_time = ap_task_exec / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
 
@@ -351,7 +354,7 @@ void AperiodicTask_1 ( void *pvParameters )
 
 void AperiodicTaskGenerator( void *pvParameters )
 {
-    TickType_t deadline = 2000;
+    TickType_t deadline = ap_task_deadline;
 
     while (1)
     {
