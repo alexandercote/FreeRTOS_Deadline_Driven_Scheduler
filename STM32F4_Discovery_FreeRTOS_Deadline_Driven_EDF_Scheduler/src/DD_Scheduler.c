@@ -369,7 +369,7 @@ void MonitorTask ( void *pvParameters )
         DD_Return_Active_List();
         DD_Return_Overdue_List();
 
-        vTaskDelay(1000); // Wait for 1 seconds.
+        vTaskDelay(100); // Wait for 1 seconds.
     }
 }
 
