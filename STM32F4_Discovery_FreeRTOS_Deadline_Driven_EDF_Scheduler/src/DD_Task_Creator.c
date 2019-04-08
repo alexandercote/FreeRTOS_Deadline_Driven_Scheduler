@@ -260,7 +260,11 @@ void PeriodicTask_3 ( void *pvParameters )
 
         STM_EVAL_LEDOff(blue_led);
         relative_deadline = myself->deadline - current_time;
-        vTaskDelayUntil( &current_time, relative_deadline );
+
+        if(relative_deadline != 0)
+        {
+        	vTaskDelayUntil( &current_time, relative_deadline );
+        }
 
         DD_Task_Delete( xTaskGetCurrentTaskHandle() );
     }
