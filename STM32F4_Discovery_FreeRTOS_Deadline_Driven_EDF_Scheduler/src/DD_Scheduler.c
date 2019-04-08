@@ -362,6 +362,7 @@ uint32_t DD_Task_Delete(TaskHandle_t delete_task)
  */
 void MonitorTask ( void *pvParameters )
 {
+	vTaskDelay(10000);
 
     while(1)
     {

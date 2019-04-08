@@ -14,17 +14,17 @@
  * red_led      LED5
  * blue_led     LED6
  */
-# define task_1_period (250)
+# define task_1_period (500)
 # define task_1_exec   (100)
 
 # define task_2_period (500)
-# define task_2_exec   (150)
+# define task_2_exec   (200)
 
-# define task_3_period (750)
-# define task_3_exec   (250)
+# define task_3_period (500)
+# define task_3_exec   (200)
 
-# define ap_task_exec 	(50)
-# define ap_task_deadline (200)
+# define ap_task_exec 		(50)
+# define ap_task_deadline 	(200)
 
 /* Required Tests
  * Test Bench #1:
