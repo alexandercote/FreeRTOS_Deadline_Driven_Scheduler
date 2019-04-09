@@ -12,5 +12,5 @@ System validation completed using a toy application utilizing on-board LEDs and 
 | Periodic Task 3 | 250     |    750 |  Blue  |
 | Aperiodic Task 1 | 90     | 200   | Red |
 
-*all times are in ticks set at 1kHz,therefore 1000 ticks = 1 second*
+*all times are in ticks set at 1kHz, therefore 1000 ticks = 1 second*
 
