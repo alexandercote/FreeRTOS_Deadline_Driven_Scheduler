@@ -81,7 +81,8 @@ void HardwareInit( void );
 
 int main(void)
 {
-    HardwareInit(); // Initialize the GPIO and ADC
+
+	HardwareInit(); // Initialize the GPIO and ADC
 
     DD_Scheduler_Init();
 

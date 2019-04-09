@@ -14,17 +14,17 @@
  * red_led      LED5
  * blue_led     LED6
  */
-# define task_1_period (500)
-# define task_1_exec   (100)
+# define task_1_period (3000)
+# define task_1_exec   (1000)
 
-# define task_2_period (500)
-# define task_2_exec   (200)
+# define task_2_period (6000)
+# define task_2_exec   (1000)
 
-# define task_3_period (500)
-# define task_3_exec   (200)
+# define task_3_period (9000)
+# define task_3_exec   (1000)
 
-# define ap_task_exec 		(50)
-# define ap_task_deadline 	(200)
+# define ap_task_exec 		(500)
+# define ap_task_deadline 	(900)
 
 /* Required Tests
  * Test Bench #1:
@@ -149,7 +149,7 @@ void PeriodicTask_1 ( void *pvParameters )
         	if( current_time != previous_tick )
         	{
         		execution_counter++;
-				if( current_time % 100 == 0 )
+				if( current_time % 2 == 0 )
 				{
 					STM_EVAL_LEDToggle(amber_led);
 				}
@@ -199,7 +199,7 @@ void PeriodicTask_2 ( void *pvParameters )
         	if( current_time != previous_tick )
         	{
         		execution_counter++;
-				if( current_time % 100 == 0 )
+				if( current_time % 2 == 0 )
 				{
 					STM_EVAL_LEDToggle(green_led);
 				}
@@ -241,7 +241,7 @@ void PeriodicTask_3 ( void *pvParameters )
     	debugprintf("\nPeriodicTask_3 Executing: Current time = %u, Priority = %u \n", (unsigned int)current_time, (unsigned int)uxTaskPriorityGet( NULL ) );
 
     	// Action perfomed by periodic task
-        STM_EVAL_LEDToggle(green_led);
+        STM_EVAL_LEDToggle(blue_led);
 
         // Simulating execution time.
         while( execution_counter < execution_time )
@@ -250,7 +250,7 @@ void PeriodicTask_3 ( void *pvParameters )
         	if( current_time != previous_tick )
         	{
         		execution_counter++;
-				if( current_time % 100 == 0 )
+				if( current_time % 2 == 0 )
 				{
 					STM_EVAL_LEDToggle(blue_led);
 				}
@@ -315,6 +315,7 @@ void AperiodicTask_1 ( void *pvParameters )
 	TickType_t execution_time = ap_task_exec / portTICK_PERIOD_MS;
 	TickType_t relative_deadline = 0;
 	TickType_t start_time = 0;
+	uint32_t execution_counter = 0;
 
     while(1)
     {
@@ -328,12 +329,12 @@ void AperiodicTask_1 ( void *pvParameters )
         STM_EVAL_LEDToggle(red_led);
 
         // Simulating execution time.
-        while( current_time < (start_time + execution_time) )
+        while( execution_counter < execution_time)
         {
         	current_time = xTaskGetTickCount();
         	if( current_time != previous_tick )
         	{
-				if( current_time % 75 == 0 )
+				if( current_time % 2 == 0 )
 				{
 					STM_EVAL_LEDToggle(red_led);
 				}
@@ -372,4 +373,5 @@ void AperiodicTaskGenerator( void *pvParameters )
         DD_Task_Create( generated_task );
     }
 }
+
 
